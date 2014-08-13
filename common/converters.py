@@ -33,6 +33,15 @@ class BinaryToHex(object):
         if hex_string[-1] == 'L':
             hex_string = hex_string[:-1]
         return _ensure_length_multiple_of(hex_string, 2)
+
+
+class IntToHex(object):
+    
+    def __init__(self, integer):
+        self.integer = integer
+        
+    def value(self):
+        return hex(self.integer)[2:]
     
     
 class HexToASCII(object):

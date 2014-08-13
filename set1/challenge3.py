@@ -1,4 +1,4 @@
-from common.converters import HexToASCII
+from common.converters import HexToASCII, IntToHex
 from common.freq import EnglishFrequencyScorer
 from common.padders import LeftPadder
 from common.tools import HexXOR
@@ -18,12 +18,12 @@ class XORDecipher(object):
     def value(self):
         max_score = 0
         for byte in range(255):
-            hex_byte = LeftPadder(hex(byte)[2:]).value(2)
+            hex_byte = LeftPadder(IntToHex(byte).value()).value(2)
             plaintext = self._xor_decrypt_with(hex_byte)
             score = EnglishFrequencyScorer(plaintext).value()
             if score > max_score:
                 candidate_key = hex_byte
-                candidate_plaintext = self._xor_decrypt_with(candidate_key)
+                candidate_plaintext = plaintext
                 max_score = score
         return (candidate_key, candidate_plaintext)
     
