@@ -28,12 +28,9 @@ class BinaryToHex(object):
         self.bin_string = bin_string
         
     def value(self):
-        hex_string = str()
-        bin_string = _ensure_length_multiple_of(self.bin_string, 4)
-        for i in xrange(0, len(bin_string), 4):
-            byte = bin_string[i:i+4]
-            hex_value = hex(int(byte, 2))[2:]
-            hex_string += hex_value
+        hex_string = hex(int(self.bin_string, 2))[2:]
+        if hex_string[-1] == 'L':
+            hex_string = hex_string[:-1]
         return hex_string
 
 
