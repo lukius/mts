@@ -1,5 +1,5 @@
-from common.bintools import HexToBinary
-from common.padder import RightPadder
+from common.converters import HexToBinary
+from common.padders import RightPadder
 
 
 class Base64Encoder(object):

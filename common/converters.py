@@ -1,13 +1,14 @@
-from math import ceil
+import binascii
+import math
 
-from padder import LeftPadder
+from common.padders import LeftPadder
 from tools import concatenate
 
 
 def _ensure_length_multiple_of(string, value):
     length = len(string)
     if length % value != 0:
-        pad_size = int(value*ceil(length/float(value)))
+        pad_size = int(value*math.ceil(length/float(value)))
         string = LeftPadder(string).value(pad_size)
     return string
 
@@ -31,7 +32,16 @@ class BinaryToHex(object):
         hex_string = hex(int(self.bin_string, 2))[2:]
         if hex_string[-1] == 'L':
             hex_string = hex_string[:-1]
-        return hex_string
+        return _ensure_length_multiple_of(hex_string, 2)
+    
+    
+class HexToASCII(object):
+    
+    def __init__(self, hex_string):
+        self.hex_string = hex_string
+        
+    def value(self):
+        return binascii.unhexlify(self.hex_string)
 
 
 class ASCIIToBinary(object):
