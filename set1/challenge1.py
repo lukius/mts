@@ -1,11 +1,11 @@
-from common.bintools import BytesToBinary
+from common.bintools import HexToBinary
 from common.padder import RightPadder
 
 
 class Base64Encoder(object):
     
-    def __init__(self, byte_string):
-        self.byte_string = byte_string
+    def __init__(self, hex_string):
+        self.hex_string = hex_string
         
     def _char_at(self, index):
         def map_char(char, index, base):
@@ -30,7 +30,7 @@ class Base64Encoder(object):
         
     def value(self):
         base64_str = str()
-        bin_str = BytesToBinary(self.byte_string).value()
+        bin_str = HexToBinary(self.hex_string).value()
         for i in xrange(0, len(bin_str), 6):
             group = bin_str[i:i+6]
             group = RightPadder(group).value(6)
