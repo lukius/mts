@@ -1,4 +1,4 @@
-mts
-===
+###mts
 
-Matasano crypto challenges
+
+Solutions for some of the [Matasano crypto challenges](http://cryptopals.com/).
