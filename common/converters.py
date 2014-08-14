@@ -53,6 +53,15 @@ class HexToASCII(object):
         return binascii.unhexlify(self.hex_string)
 
 
+class ASCIIToHex(object):
+    
+    def __init__(self, string):
+        self.string = string
+        
+    def value(self):
+        return binascii.hexlify(self.string)
+
+
 class ASCIIToBinary(object):
     
     def __init__(self, string):
