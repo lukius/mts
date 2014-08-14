@@ -3,15 +3,39 @@ from collections import defaultdict
 
 class FrequencyScorer(object):
     
-    POINTS_ON_MATCH = 1
-    EQUALITY_TOLERANCE = 0.01    
+    MAX_POINTS_ON_MATCH = 8
+    MIN_PENALTY = 1
+    POINTS_ON_SPACE_MATCH = 2*MAX_POINTS_ON_MATCH
+    EQUALITY_TOLERANCE = 0.01
+    frequencies = None
     
     def __init__(self, text):
         self.text = text
-        self.frequencies = self._init_frequencies()
+        self._init_tables()
+        
+    def _init_tables(self):
+        if self.frequencies is None:
+            self.__class__.frequencies = self._init_frequencies()
+            self.__class__.score_table = self._init_score_table()
     
     def _init_frequencies(self):
         raise NotImplementedError
+    
+    def _init_score_table(self):
+        score_table = dict()
+        sorted_items = sorted(self.frequencies.items(),
+                              key=lambda item: item[1], reverse=True)
+        for (index, (char, _)) in enumerate(sorted_items, 1):
+            penalty = self.MIN_PENALTY
+            if index > 4:
+                penalty *= 2
+            if index > 12:
+                penalty *= 2
+            if index > 20:
+                penalty *= 2
+            points = self.MAX_POINTS_ON_MATCH / penalty
+            score_table[char] = points 
+        return score_table
     
     def _normalize(self, text):
         # 1. Remove uppercase
@@ -34,6 +58,19 @@ class FrequencyScorer(object):
     def _equals_with_tolerance(self, tolerance, number1, number2):
         return number1 - tolerance <= number2 <= number1 + tolerance
     
+    def _compute_points_for(self, char):
+        char_points = self.score_table[char]
+        extra_points = self._compute_extra_points()
+        return char_points + extra_points
+    
+    def _compute_extra_points(self):
+        extra_points = 0
+        spaces = len(self.text.split(' ')) - 1
+        avg_spaces = len(self.text)/self.AVERAGE_WORD_LENGTH - 1
+        if self._equals_with_tolerance(1, avg_spaces, spaces):
+            extra_points += self.POINTS_ON_SPACE_MATCH
+        return extra_points
+    
     def value(self):
         sampled_frequencies = self._compute_frequencies()
         score = 0
@@ -41,11 +78,13 @@ class FrequencyScorer(object):
             sampled_frequency = sampled_frequencies[char]
             if self._equals_with_tolerance(self.EQUALITY_TOLERANCE, frequency,
                                            sampled_frequency):
-                score += self.POINTS_ON_MATCH
+                score += self._compute_points_for(char)
         return score
 
 
 class EnglishFrequencyScorer(FrequencyScorer):
+    
+    AVERAGE_WORD_LENGTH = 5
     
     def _init_frequencies(self):
         frequencies = dict()
