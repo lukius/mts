@@ -1,4 +1,4 @@
-from common.tools import HexXOR
+from common.xor import HexXOR
     
     
 if __name__ == '__main__':

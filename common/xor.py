@@ -1,7 +1,7 @@
 from converters import HexToASCII, IntToHex
 from freq import EnglishFrequencyScorer
 from padders import LeftPadder
-from tools import concatenate
+from tools import Concatenation
 
 
 class HexXOR(object):
@@ -19,7 +19,7 @@ class HexXOR(object):
         pairs = zip(bin_string1, bin_string2)
         pairs_xored = map(lambda (bit1, bit2): str(int(bit1) ^ int(bit2)),
                           pairs)
-        bin_string = concatenate(pairs_xored)
+        bin_string = Concatenation(pairs_xored).value()
         return BinaryToHex(bin_string).value()
     
     

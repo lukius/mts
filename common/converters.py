@@ -2,7 +2,7 @@ import binascii
 import math
 
 from common.padders import LeftPadder
-from tools import concatenate
+from tools import Concatenation
 
 
 def _ensure_length_multiple_of(string, value):
@@ -43,6 +43,15 @@ class IntToHex(object):
     def value(self):
         return hex(self.integer)[2:]
     
+
+class IntToBinary(object):
+    
+    def __init__(self, integer):
+        self.integer = integer
+        
+    def value(self):
+        return bin(self.integer)[2:]
+    
     
 class HexToASCII(object):
     
@@ -73,4 +82,4 @@ class ASCIIToBinary(object):
         
     def value(self):
         bin_strings = map(self._to_bin, self.string)
-        return concatenate(bin_strings)        
+        return Concatenation(bin_strings).value()        
