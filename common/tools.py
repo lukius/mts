@@ -9,6 +9,16 @@ class Concatenation(object):
                       self.objs, initial_value)
 
 
+class Average(object):
+    
+    def __init__(self, values):
+        self.values = values
+        
+    def value(self):
+        length = len(self.values)
+        return sum(self.values)/float(length)
+        
+
 class HammingDistance(object):
     
     def __init__(self, string1, string2):
@@ -18,9 +28,9 @@ class HammingDistance(object):
         self.string2 = string2
         
     def value(self):
-        from converters import ASCIIToBinary
-        bin_string1 = ASCIIToBinary(self.string1).value()
-        bin_string2 = ASCIIToBinary(self.string2).value()
+        from converters import HexToBinary
+        bin_string1 = HexToBinary(self.string1).value()
+        bin_string2 = HexToBinary(self.string2).value()
         pairs = zip(bin_string1, bin_string2)
         differences = reduce(lambda count, (bit1,bit2): count + (bit1 != bit2),
                              pairs, 0)

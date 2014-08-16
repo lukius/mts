@@ -49,8 +49,10 @@ class Base64Decoder(object):
             index = map_index(ord_char, 'a', 26)
         elif ord('0') <= ord_char <= ord('9'):
             index = map_index(ord_char, '0', 52)
-        else:
+        elif ord_char in [43, 47]:
             index = 62 if char == '+' else 63
+        else:
+            index = None
         return index
     
     def _remove_base64_padding(self, string, bin_string):
@@ -64,10 +66,13 @@ class Base64Decoder(object):
     
     def value(self, string):
         bin_string = str()
+        string = string.strip()
         for char in string:
             if char == '=':
                 break
             index = self._index_of(char)
+            if index is None:
+                continue
             bin_index = IntToBinary(index).value()
             padded_bin_index = LeftPadder(bin_index).value(6)
             bin_string += padded_bin_index

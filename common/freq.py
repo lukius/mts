@@ -1,16 +1,25 @@
+import string
 from collections import defaultdict
 
 
 class FrequencyScorer(object):
     
+    NON_LETTERS = [char for char in string.printable
+                   if char not in string.letters]
+    LIKELY_NON_LETTER_CHARS = [' ', '\n','.',',',';',':'] + list(string.digits)
+    
     MAX_POINTS_ON_MATCH = 8
     MIN_PENALTY = 1
-    POINTS_ON_SPACE_MATCH = 2*MAX_POINTS_ON_MATCH
-    EQUALITY_TOLERANCE = 0.01
+    MAX_PENALTY = MAX_POINTS_ON_MATCH
+    EQUALITY_TOLERANCE = 0.03
+    MAX_FREQUENCY_DIFFERENCE = 0.1
+    UNLIKELY_CHARS_FREQUENCY_THRESHOLD = 0.1
+    
     frequencies = None
     
     def __init__(self, text):
         self.text = text
+        self.normalized_text = self._normalize(text)
         self._init_tables()
         
     def _init_tables(self):
@@ -38,53 +47,65 @@ class FrequencyScorer(object):
         return score_table
     
     def _normalize(self, text):
-        # 1. Remove uppercase
+        text = filter(lambda char: char in string.printable, text)
         text = text.lower()
-        # 2. Keep letters only
-        text = filter(lambda char: char in self.frequencies, text)
         return text
     
+    def _compute_frequency(self, char):
+        occurrences = reduce(lambda count, letter: count + (letter==char),
+                             self.normalized_text, 0)
+        length = len(self.normalized_text)
+        return occurrences/float(length)
+        
     def _compute_frequencies(self):
         sampled_frequencies = defaultdict(lambda: 0)
-        text = self._normalize(self.text)
-        length = len(text)
-        if length > 0:
-            for char in self.frequencies:
-                occurrences = reduce(lambda count, letter: count + (letter==char),
-                                     text, 0)
-                sampled_frequencies[char] = occurrences / float(length)
+        chars = list(string.lowercase) + self.NON_LETTERS
+        for char in chars:
+            frequency = self._compute_frequency(char)
+            sampled_frequencies[char] += frequency
         return sampled_frequencies
     
     def _equals_with_tolerance(self, tolerance, number1, number2):
         return number1 - tolerance <= number2 <= number1 + tolerance
     
-    def _compute_points_for(self, char):
-        char_points = self.score_table[char]
-        extra_points = self._compute_extra_points()
-        return char_points + extra_points
+    def _exceeds_maximum_difference(self, sampled_frequency, frequency):
+        return sampled_frequency > frequency + self.MAX_FREQUENCY_DIFFERENCE
     
-    def _compute_extra_points(self):
-        extra_points = 0
-        spaces = len(self.text.split(' ')) - 1
-        avg_spaces = len(self.text)/self.AVERAGE_WORD_LENGTH - 1
-        if self._equals_with_tolerance(1, avg_spaces, spaces):
-            extra_points += self.POINTS_ON_SPACE_MATCH
-        return extra_points
+    def _text_has_printable_chars_only(self):
+        return len(self.normalized_text) == len(self.text)
     
-    def value(self):
-        sampled_frequencies = self._compute_frequencies()
+    def _unlikely_chars_frequency_is_tolerable(self, sampled_frequencies):
+        frequency = self._compute_unlikely_chars_frequency(sampled_frequencies)
+        return frequency < self.UNLIKELY_CHARS_FREQUENCY_THRESHOLD
+    
+    def _compute_unlikely_chars_frequency(self, sampled_frequencies):
+        unlikely_chars = [char for char in self.NON_LETTERS
+                          if char not in self.LIKELY_NON_LETTER_CHARS]
+        return reduce(lambda freq, char: freq + sampled_frequencies[char],
+                      unlikely_chars, 0)
+    
+    def _compute_score_for(self, sampled_frequencies):
         score = 0
         for (char, frequency) in self.frequencies.items():
             sampled_frequency = sampled_frequencies[char]
             if self._equals_with_tolerance(self.EQUALITY_TOLERANCE, frequency,
                                            sampled_frequency):
-                score += self._compute_points_for(char)
+                score += self.score_table[char]
+            elif self._exceeds_maximum_difference(sampled_frequency,
+                                                  frequency):
+                score -= self.MAX_PENALTY
+        return score
+    
+    def value(self):
+        score = 0
+        if self._text_has_printable_chars_only():
+            text_frequencies = self._compute_frequencies()
+            if self._unlikely_chars_frequency_is_tolerable(text_frequencies):
+                score = self._compute_score_for(text_frequencies)
         return score
 
 
 class EnglishFrequencyScorer(FrequencyScorer):
-    
-    AVERAGE_WORD_LENGTH = 5
     
     def _init_frequencies(self):
         frequencies = dict()

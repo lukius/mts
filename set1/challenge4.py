@@ -9,8 +9,8 @@ class SingleByteXORFinder(object):
     def value(self):
         max_score = 0
         for hex_string in self.hex_strings:
-            key, plaintext, score = SingleByteXORDecipher(hex_string).\
-                                    value(with_score=True)
+            key, plaintext, score = SingleByteXORDecipher().\
+                                    value(hex_string, with_score=True)
             if score > max_score:
                 candidate_key = key
                 candidate_plaintext = plaintext

@@ -33,6 +33,12 @@ class XORCipher(object):
         key_length = len(self.key)
         quotient, remainder = divmod(plaintext_length, key_length)
         return self.key*quotient + self.key[:remainder]
+    
+    def encode(self, plaintext):
+        return self.value(plaintext)
+    
+    def decode(self, ciphertext):
+        return self.value(ciphertext)
         
     def value(self, plaintext):
         extended_key = self._extend_key_for(plaintext)
@@ -41,22 +47,22 @@ class XORCipher(object):
 
 class SingleByteXORDecipher(object):
     
-    def __init__(self, hex_string):
-        self.hex_string = hex_string
-        
-    def _xor_decrypt_with(self, key):
-        length = len(self.hex_string)/2
+    def _xor_decrypt_with(self, key, hex_string):
+        length = len(hex_string)/2
         extended_key = key*length
-        hex_string = HexXOR(self.hex_string, extended_key).value()
-        return HexToASCII(hex_string).value()
+        decrypted = HexXOR(hex_string, extended_key).value()
+        return HexToASCII(decrypted).value()
     
-    def value(self, with_score=False):
-        max_score = 0
+    def _greater_than(self, number1, number2):
+        return number2 is None or number1 > number2
+    
+    def value(self, hex_string, with_score=False):
+        max_score = None
         for byte in range(255):
             hex_byte = LeftPadder(IntToHex(byte).value()).value(2)
-            plaintext = self._xor_decrypt_with(hex_byte)
+            plaintext = self._xor_decrypt_with(hex_byte, hex_string)
             score = EnglishFrequencyScorer(plaintext).value()
-            if score > max_score:
+            if self._greater_than(score, max_score):
                 candidate_key = hex_byte
                 candidate_plaintext = plaintext
                 max_score = score
