@@ -1,7 +1,8 @@
 from common.base64 import Base64Decoder
 from common.converters import HexToASCII
 from common.tools import HammingDistance, Concatenation, Average
-from common.xor import XORCipher, SingleByteXORDecipher
+from common.xor import SingleByteXORDecipher
+from common.ciphers.xor import XORCipher
 
 
 class RepeatingKeyXORDecipher(object):
@@ -68,7 +69,7 @@ class RepeatingKeyXORDecipher(object):
     def value(self, hex_string):
         key_length = self._get_candidate_key_length(hex_string)
         key = self._build_candidate_key(hex_string, key_length)
-        hex_plaintext = XORCipher(key).decode(hex_string)    
+        hex_plaintext = XORCipher(key).decrypt(hex_string)    
         return HexToASCII(hex_plaintext).value()
         
     

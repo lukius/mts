@@ -23,28 +23,6 @@ class HexXOR(object):
         return BinaryToHex(bin_string).value()
     
     
-class XORCipher(object):
-    
-    def __init__(self, key):
-        self.key = key
-        
-    def _extend_key_for(self, plaintext):
-        plaintext_length = len(plaintext)
-        key_length = len(self.key)
-        quotient, remainder = divmod(plaintext_length, key_length)
-        return self.key*quotient + self.key[:remainder]
-    
-    def encode(self, plaintext):
-        return self.value(plaintext)
-    
-    def decode(self, ciphertext):
-        return self.value(ciphertext)
-        
-    def value(self, plaintext):
-        extended_key = self._extend_key_for(plaintext)
-        return HexXOR(extended_key, plaintext).value()
-
-
 class SingleByteXORDecipher(object):
     
     def _xor_decrypt_with(self, key, hex_string):

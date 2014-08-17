@@ -1,5 +1,5 @@
 from common.converters import ASCIIToHex
-from common.xor import XORCipher
+from common.ciphers.xor import XORCipher
 
     
 if __name__ == '__main__':
@@ -7,4 +7,4 @@ if __name__ == '__main__':
                     "I go crazy when I hear a cymbal"
     target_hex = ASCIIToHex(target_string).value()
     key = ASCIIToHex('ICE').value()
-    print XORCipher(key).value(target_hex)
+    print XORCipher(key).encrypt(target_hex)
