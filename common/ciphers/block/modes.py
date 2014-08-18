@@ -1,4 +1,4 @@
-from common.padders import RightPadder
+from common.padders import PKCS7Padder
 
 
 class BlockCipherMode(object):
@@ -14,21 +14,12 @@ class ECB(BlockCipherMode):
     
     BLOCK_SIZE = 16
     
-    def _add_padding(self, block):
-        padding_char = chr(self.BLOCK_SIZE - len(block))
-        return RightPadder(block).value(self.BLOCK_SIZE, char=padding_char)
-    
     def _remove_padding(self, block):
         last_char = ord(block[-1])
         if 1 <= last_char <= self.BLOCK_SIZE - 1:
             block = block[:-last_char]
         return block
 
-    def _ensure_proper_block_size(self, block):
-        if len(block) < self.BLOCK_SIZE:
-            block = self._add_padding(block)
-        return block
-    
     def _is_last_block(self, index, length):
         return index + self.BLOCK_SIZE >= length
     
@@ -36,7 +27,7 @@ class ECB(BlockCipherMode):
         ciphertext = str()
         for i in range(0, len(message), self.BLOCK_SIZE):
             block = message[i:i+self.BLOCK_SIZE]
-            block = self._ensure_proper_block_size(block)
+            block = PKCS7Padder(block).value(self.BLOCK_SIZE)
             ciphertext += cipher.encrypt_block(block)
         return ciphertext
     
