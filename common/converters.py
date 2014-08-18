@@ -19,9 +19,12 @@ class HexToBinary(object):
         self.hex_string = byte_string
     
     def value(self):
-        bin_string = bin(int(self.hex_string, 16))[2:]
-        return _ensure_length_multiple_of(bin_string, 8)
-    
+        bin_string = str()
+        for i in range(0, len(self.hex_string), 2):
+            byte = self.hex_string[i:i+2]
+            bits = bin(int(byte, 16))[2:]
+            bin_string += _ensure_length_multiple_of(bits, 8)
+        return bin_string
     
 class BinaryToHex(object):
     
