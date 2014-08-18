@@ -1,4 +1,5 @@
 from common.base64 import Base64Decoder
+from common.challenge import MatasanoChallenge
 from common.converters import HexToASCII
 from common.tools import HammingDistance, Concatenation, Average
 from common.xor import SingleByteXORDecipher
@@ -69,12 +70,17 @@ class RepeatingKeyXORDecipher(object):
     def value(self, hex_string):
         key_length = self._get_candidate_key_length(hex_string)
         key = self._build_candidate_key(hex_string, key_length)
-        hex_plaintext = XORCipher(key).decrypt(hex_string)    
+        hex_plaintext = XORCipher(key).decrypt(hex_string)
         return HexToASCII(hex_plaintext).value()
         
+
+class Set1Challenge6(MatasanoChallenge):
     
-if __name__ == '__main__':
-    target_file = 'data/6.txt'
-    content = open(target_file, 'r').read()
-    decoded_content = Base64Decoder().value(content)
-    print RepeatingKeyXORDecipher().value(decoded_content)
+    def expected_value(self):
+        return open('set1/data/6ans.txt', 'r').read()
+
+    def value(self):
+        target_file = 'set1/data/6.txt'
+        content = open(target_file, 'r').read()
+        decoded_content = Base64Decoder().value(content)
+        return RepeatingKeyXORDecipher().value(decoded_content)

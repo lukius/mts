@@ -1,3 +1,4 @@
+from common.challenge import MatasanoChallenge
 from common.xor import SingleByteXORDecipher
 
 
@@ -9,16 +10,20 @@ class SingleByteXORFinder(object):
     def value(self):
         max_score = 0
         for hex_string in self.hex_strings:
-            key, plaintext, score = SingleByteXORDecipher().\
+            _, plaintext, score = SingleByteXORDecipher().\
                                     value(hex_string, with_score=True)
             if score > max_score:
-                candidate_key = key
                 candidate_plaintext = plaintext
                 max_score = score
-        return (candidate_key, candidate_plaintext)
+        return candidate_plaintext
     
+
+class Set1Challenge4(MatasanoChallenge):
     
-if __name__ == '__main__':
-    target_file = 'data/4.txt'
-    hex_strings = open(target_file, 'r').read().splitlines()
-    print SingleByteXORFinder(hex_strings).value()
+    def expected_value(self):
+        return 'Now that the party is jumping\n'
+
+    def value(self):
+        target_file = 'set1/data/4.txt'
+        hex_strings = open(target_file, 'r').read().splitlines()
+        return SingleByteXORFinder(hex_strings).value()

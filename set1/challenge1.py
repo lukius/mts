@@ -1,7 +1,14 @@
 from common.base64 import Base64Encoder
-    
+from common.challenge import MatasanoChallenge
 
-if __name__ == '__main__':
-    target_string = '49276d206b696c6c696e6720796f757220627261696e206c696b652'+\
-                    '06120706f69736f6e6f7573206d757368726f6f6d'
-    print Base64Encoder().value(target_string)
+
+class Set1Challenge1(MatasanoChallenge):
+    
+    def expected_value(self):
+        return 'SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9p'+\
+               'c29ub3VzIG11c2hyb29t'
+
+    def value(self):
+        target_string = '49276d206b696c6c696e6720796f757220627261696e206c696b652'+\
+                        '06120706f69736f6e6f7573206d757368726f6f6d'
+        return Base64Encoder().value(target_string)
