@@ -1,3 +1,6 @@
+import random
+
+
 class Concatenation(object):
     
     def __init__(self, objs):
@@ -17,7 +20,14 @@ class Average(object):
     def value(self):
         length = len(self.values)
         return sum(self.values)/float(length)
-        
+    
+
+class RandomByteGenerator(object):
+    
+    def value(self, count):
+        random_bytes = [chr(random.choice(range(255))) for _ in range(count)]
+        return Concatenation(random_bytes).value()        
+
 
 class HammingDistance(object):
     

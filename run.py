@@ -108,8 +108,8 @@ class Runner(object):
                 
     def _run_challenge(self, challenge):
         self._show_message('Running %s ... ' % challenge.__class__.__name__)
-        expected_value = challenge.expected_value()
         value = challenge.value()
+        expected_value = challenge.expected_value()
         self.challenges_ran += 1
         if value == expected_value:
             self._show_message('OK\n')
