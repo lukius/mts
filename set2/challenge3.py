@@ -3,6 +3,7 @@ import random
 from common.challenge import MatasanoChallenge
 from common.ciphers.block.cipher import AES
 from common.ciphers.block.modes import ECB, CBC
+from common.ciphers.block.tools import ECB_CBCDetectionOracle
 from common.tools import RandomByteGenerator
 
 
@@ -35,33 +36,6 @@ class RandomECB_CBCEncrypter(object):
         self.mode = self._get_random_mode()
         return AES(key).encrypt(plaintext, mode=self.mode)
     
-    
-class ECB_CBCDetectionOracle(object):
-    
-    BLOCKS = 20
-
-    def __init__(self, encrypter):
-        self.encrypter = encrypter
-        self.block_size = encrypter.block_size
-
-    def _all_equal(self, blocks):
-        return len(set(blocks)) == 1
-    
-    def _build_chosen_plaintext(self):
-        return 'X'*self.block_size*self.BLOCKS
-    
-    def value(self):
-        plaintext = self._build_chosen_plaintext()
-        ciphertext = self.encrypter.encrypt(plaintext)
-        blocks = [ciphertext[i:i+self.block_size]
-                  for i in range(0, len(ciphertext), self.block_size)]
-        # First and last blocks include random, non-controlled data.
-        if self._all_equal(blocks[1:-2]):
-            mode = ECB.name()
-        else:
-            mode = CBC.name()
-        return mode
-
 
 class Set2Challenge3(MatasanoChallenge):
     
@@ -70,7 +44,7 @@ class Set2Challenge3(MatasanoChallenge):
     def __init__(self):
         MatasanoChallenge.__init__(self)
         self.encrypter = RandomECB_CBCEncrypter(self.BLOCK_SIZE)
-        self.oracle = ECB_CBCDetectionOracle(self.encrypter)
+        self.oracle = ECB_CBCDetectionOracle(self.encrypter, self.BLOCK_SIZE)
     
     def expected_value(self):
         return self.encrypter.get_mode()

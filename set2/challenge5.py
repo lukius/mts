@@ -3,6 +3,7 @@ import random
 from common.challenge import MatasanoChallenge
 from common.ciphers.block.cipher import AES
 from common.ciphers.block.modes import ECB
+from common.ciphers.block.tools import BlockRetriever
 from common.padders import PKCS7Padder
 from common.tools import RandomByteGenerator
 
@@ -56,15 +57,10 @@ class AdminUserProfileGenerator(object):
     def __init__(self, profile_generator):
         self.profile_generator = profile_generator
         
-    def _get_block(self, index, ciphertext):
-        start_index = index*self.BLOCK_SIZE
-        end_index = start_index+self.BLOCK_SIZE
-        return ciphertext[start_index:end_index]
-        
     def _merge_blocks(self, ciphertext1, ciphertext2):
-        block1 = self._get_block(0, ciphertext1)
-        block2 = self._get_block(1, ciphertext1)
-        block3 = self._get_block(1, ciphertext2)
+        block1 = BlockRetriever(ciphertext1).value(0)
+        block2 = BlockRetriever(ciphertext1).value(1)
+        block3 = BlockRetriever(ciphertext2).value(1)
         return '%s%s%s' % (block1, block2, block3)
 
     def value(self):
