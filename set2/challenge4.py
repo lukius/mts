@@ -81,13 +81,7 @@ class ECBDecrypter(object):
                 return block_count*self.block_size - i + 1
         
     def _get_target_block(self, index):
-        # If we are guessing the last byte of a block, we must use an empty
-        # input.
-        input_string = str()
-        if index % self.block_size != 0:
-            count = self.block_size - index%self.block_size
-            input_string = self.test_block[:count]
-        ciphertext = self.oracle.encrypt(input_string)
+        ciphertext = self.oracle.encrypt(self.input_string)
         # Index of the encrypted block where the desired byte is hiding.
         target_block_index = (index-1)/self.block_size
         return BlockRetriever(ciphertext, self.block_size).value(target_block_index)
@@ -96,11 +90,21 @@ class ECBDecrypter(object):
         possible_blocks = dict()
         for byte in range(255):
             char = chr(byte)
-            input_string = self.test_block + char 
+            input_string = self.test_string + char 
             ciphertext = self.oracle.encrypt(input_string)
             block = BlockRetriever(ciphertext, self.block_size).value(0)
             possible_blocks[block] = char
         return possible_blocks
+    
+    def _update_input_strings(self, byte):
+        # Insert the byte into our test string and shift it.
+        self.test_string = self.test_string[1:] + byte
+        if not self.input_string:
+            # If we've just completed one block, start over for the next one.
+            self.input_string = self.test_string
+        else:
+            # Otherwise, make room for the next byte we want to decipher.
+            self.input_string = self.input_string[:-1]
         
     def _discover_byte(self, index, string):
         # Get the actual encrypted block that is holding our byte.
@@ -109,17 +113,19 @@ class ECBDecrypter(object):
         # that generates it.
         possible_blocks = self._get_possible_blocks()
         matching_byte = possible_blocks[target_block]
-        # Insert the byte into our test string and shift it.
-        self.test_block = self.test_block[1:] + matching_byte
+        self._update_input_strings(matching_byte)
         return matching_byte
         
     def _decrypt_string(self):
         length = self._discover_string_length()
         string = str()
-        # The test_block is the string used to invoke the oracle.
+        # The test_string is the string used to invoke the oracle.
         # Always has block_size - 1 bytes. The remaining byte will be
         # completed one byte at a time for every possible value.
-        self.test_block = 'X'*(self.block_size-1)
+        self.test_string = 'X'*(self.block_size-1)
+        # The input_string is used to get the actual byte we are targeting
+        # each time.
+        self.input_string = self.test_string
         for byte_index in xrange(length):
             # +1 in order to simplify math inside.
             string += self._discover_byte(1+byte_index, string)
