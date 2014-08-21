@@ -1,4 +1,4 @@
-from converters import HexToASCII, IntToHex
+from converters import HexToBytes, IntToHex
 from freq import EnglishFrequencyScorer
 from padders import LeftPadder
 from tools import Concatenation
@@ -29,7 +29,7 @@ class SingleByteXORDecipher(object):
         length = len(hex_string)/2
         extended_key = key*length
         decrypted = HexXOR(hex_string, extended_key).value()
-        return HexToASCII(decrypted).value()
+        return HexToBytes(decrypted).value()
     
     def _greater_than(self, number1, number2):
         return number2 is None or number1 > number2

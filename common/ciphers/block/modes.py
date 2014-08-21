@@ -1,4 +1,4 @@
-from common.converters import ASCIIToHex, HexToASCII
+from common.converters import BytesToHex, HexToBytes
 from common.padders import PKCS7Padder
 from common.xor import HexXOR
 
@@ -72,10 +72,10 @@ class CBC(BlockCipherMode):
         self.iv = iv
 
     def _xor(self, string1, string2):
-        hex_string1 = ASCIIToHex(string1).value()
-        hex_string2 = ASCIIToHex(string2).value()
+        hex_string1 = BytesToHex(string1).value()
+        hex_string2 = BytesToHex(string2).value()
         hex_result = HexXOR(hex_string1, hex_string2).value()
-        return HexToASCII(hex_result).value()
+        return HexToBytes(hex_result).value()
 
     def _block_encryption_callback(self, index, block):
         if index == 0:

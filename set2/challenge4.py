@@ -3,7 +3,6 @@ from common.ciphers.block.cipher import AES
 from common.ciphers.block.modes import ECB
 from common.ciphers.block.tools import ECB_CBCDetectionOracle, BlockRetriever
 from common.base64 import Base64Decoder
-from common.converters import HexToASCII
 from common.tools import RandomByteGenerator
 
 
@@ -24,8 +23,7 @@ class ECBEncryptionOracle(object):
                
     def _decode_trailing_string(self):
         string = self._trailing_string()
-        hex_string = Base64Decoder().value(string)
-        return HexToASCII(hex_string).value()
+        return Base64Decoder().decode(string)
     
     def encrypt(self, plaintext):
         plaintext += self.trailing_string

@@ -26,6 +26,7 @@ class HexToBinary(object):
             bin_string += _ensure_length_multiple_of(bits, 8)
         return bin_string
     
+    
 class BinaryToHex(object):
     
     def __init__(self, bin_string):
@@ -36,6 +37,17 @@ class BinaryToHex(object):
         if hex_string[-1] == 'L':
             hex_string = hex_string[:-1]
         return _ensure_length_multiple_of(hex_string, 2)
+    
+    
+class BinaryToBytes(object):
+    
+    def __init__(self, bin_string):
+        self.bin_string = bin_string
+        
+    def value(self):
+        integer = int(self.bin_string, 2)
+        hex_string = _ensure_length_multiple_of('%x' % integer, 2)
+        return binascii.unhexlify(hex_string)
 
 
 class IntToHex(object):
@@ -56,7 +68,7 @@ class IntToBinary(object):
         return bin(self.integer)[2:]
     
     
-class HexToASCII(object):
+class HexToBytes(object):
     
     def __init__(self, hex_string):
         self.hex_string = hex_string
@@ -65,7 +77,7 @@ class HexToASCII(object):
         return binascii.unhexlify(self.hex_string)
 
 
-class ASCIIToHex(object):
+class BytesToHex(object):
     
     def __init__(self, string):
         self.string = string
@@ -74,7 +86,7 @@ class ASCIIToHex(object):
         return binascii.hexlify(self.string)
 
 
-class ASCIIToBinary(object):
+class BytesToBinary(object):
     
     def __init__(self, string):
         self.string = string

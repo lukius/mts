@@ -1,4 +1,5 @@
-from common.converters import HexToBinary, IntToBinary, BinaryToHex
+from common.converters import HexToBytes, IntToBinary, BinaryToHex,\
+                              BytesToBinary, BinaryToBytes
 from common.padders import RightPadder, LeftPadder
 
 
@@ -23,11 +24,15 @@ class Base64Encoder(object):
             string += '=='
         elif length % 24 == 16:
             string += '='
-        return string       
+        return string
+    
+    def encode_from_hex(self, hex_string):
+        string = HexToBytes(hex_string).value()
+        return self.encode(string)
         
-    def value(self, hex_string):
+    def encode(self, string):
         base64_str = str()
-        bin_str = HexToBinary(hex_string).value()
+        bin_str = BytesToBinary(string).value()
         for i in xrange(0, len(bin_str), 6):
             group = bin_str[i:i+6]
             group = RightPadder(group).value(6)
@@ -64,7 +69,15 @@ class Base64Decoder(object):
                 bin_string = bin_string[:-1]
         return bin_string
     
-    def value(self, string):
+    def decode_to_hex(self, string):
+        bin_string = self._decode(string)
+        return BinaryToHex(bin_string).value()
+    
+    def decode(self, string):
+        bin_string = self._decode(string)
+        return BinaryToBytes(bin_string).value()
+    
+    def _decode(self, string):
         bin_string = str()
         string = string.strip()
         for char in string:
@@ -77,4 +90,4 @@ class Base64Decoder(object):
             padded_bin_index = LeftPadder(bin_index).value(6)
             bin_string += padded_bin_index
         bin_string = self._remove_base64_padding(string, bin_string)
-        return BinaryToHex(bin_string).value()
+        return bin_string

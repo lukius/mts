@@ -2,7 +2,6 @@ from common.base64 import Base64Decoder
 from common.challenge import MatasanoChallenge
 from common.ciphers.block.cipher import AES
 from common.ciphers.block.modes import CBC
-from common.converters import HexToASCII
 
 
 class Set2Challenge2(MatasanoChallenge):
@@ -16,6 +15,5 @@ class Set2Challenge2(MatasanoChallenge):
 
     def value(self):
         content = open(self.FILE, 'r').read()
-        decoded_content = Base64Decoder().value(content)
-        ciphertext = HexToASCII(decoded_content).value()
+        ciphertext = Base64Decoder().decode(content)
         return AES(self.KEY).decrypt(ciphertext, mode=CBC(self.IV))
