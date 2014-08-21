@@ -3,7 +3,6 @@ import random
 from common.challenge import MatasanoChallenge
 from common.ciphers.block.cipher import AES
 from common.ciphers.block.modes import ECB
-from common.ciphers.block.tools import BlockRetriever
 from common.padders import PKCS7Padder
 from common.tools import RandomByteGenerator
 
@@ -28,7 +27,7 @@ class UserProfileParser(object):
 
     def parse(self, encrypted_profile):
         profile_string = self.cipher.decrypt(encrypted_profile, mode=ECB())
-        profile = self._parse(profile_string)
+        profile = self._parse(profile_string.bytes())
         self._validate(profile)
         return profile
 
@@ -58,9 +57,9 @@ class AdminUserProfileGenerator(object):
         self.profile_generator = profile_generator
         
     def _merge_blocks(self, ciphertext1, ciphertext2):
-        block1 = BlockRetriever(ciphertext1).value(0)
-        block2 = BlockRetriever(ciphertext1).value(1)
-        block3 = BlockRetriever(ciphertext2).value(1)
+        block1 = ciphertext1.get_block(0)
+        block2 = ciphertext1.get_block(1)
+        block3 = ciphertext2.get_block(1)
         return '%s%s%s' % (block1, block2, block3)
 
     def value(self):

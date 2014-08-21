@@ -19,8 +19,7 @@ class ECB_CBCDetectionOracle(object):
     def value(self):
         plaintext = self._build_chosen_plaintext()
         ciphertext = self.encrypter.encrypt(plaintext)
-        blocks = [BlockRetriever(ciphertext,self.block_size).value(i)
-                  for i in range(5)]
+        blocks = [ciphertext.get_block(i) for i in range(5)]
         # Skip first block in case it includes random, non-controlled data.
         if self._all_equal(blocks[1:]):
             mode = ECB.name()

@@ -16,4 +16,4 @@ class Set2Challenge2(MatasanoChallenge):
     def value(self):
         content = open(self.FILE, 'r').read()
         ciphertext = Base64Decoder().decode(content)
-        return AES(self.KEY).decrypt(ciphertext, mode=CBC(self.IV))
+        return AES(self.KEY).decrypt(ciphertext, mode=CBC(self.IV)).bytes()

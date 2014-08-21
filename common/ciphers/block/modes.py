@@ -1,3 +1,5 @@
+from string import BlockString
+
 from common.converters import BytesToHex, HexToBytes
 from common.padders import PKCS7Padder
 from common.xor import HexXOR
@@ -16,7 +18,7 @@ class BlockCipherMode(object):
                           else block_size 
     
     def _is_last_block(self, index):
-        return index + self.block_size >= len(self.message)
+        return index == self.block_string.block_count()-1
     
     def _remove_padding(self, block):
         last_char = ord(block[-1])
@@ -25,14 +27,13 @@ class BlockCipherMode(object):
         return block
     
     def _iterate_blocks(self, callback):
-        for i in range(0, len(self.message), self.block_size):
-            block = self.message[i:i+self.block_size]
-            callback(i, block)
+        for index, block in enumerate(self.block_string): 
+            callback(index, block)
 
-    def _iterate_blocks_with(self, message, cipher, callback):
-        self.result = str()
+    def _iterate_blocks_with(self, block_string, cipher, callback):
+        self.result = BlockString(block_size=self.block_size)
         self.cipher = cipher
-        self.message = message
+        self.block_string = block_string
         self._iterate_blocks(callback)
         return self.result
 
@@ -43,17 +44,20 @@ class BlockCipherMode(object):
         raise NotImplementedError
 
     def encrypt_with_cipher(self, plaintext, cipher):
-        return self._iterate_blocks_with(plaintext, cipher,
+        block_string = BlockString(plaintext, self.block_size)
+        return self._iterate_blocks_with(block_string, cipher,
                                          self._block_encryption_callback)
     
     def decrypt_with_cipher(self, ciphertext, cipher):
+        if type(ciphertext) != BlockString:
+            ciphertext = BlockString(ciphertext, self.block_size)
         return self._iterate_blocks_with(ciphertext, cipher,
                                          self._block_decryption_callback)
 
 
 class ECB(BlockCipherMode):
     
-    def _block_encryption_callback(self,index, block):
+    def _block_encryption_callback(self, index, block):
         # If block size is OK, it won't be padded.
         block = PKCS7Padder(block).value(self.block_size)
         self.result += self.cipher.encrypt_block(block)

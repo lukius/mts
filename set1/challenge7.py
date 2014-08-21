@@ -14,4 +14,4 @@ class Set1Challenge7(MatasanoChallenge):
         key = 'YELLOW SUBMARINE'
         content = open(target_file, 'r').read()
         ciphertext = Base64Decoder().decode(content)
-        return AES(key).decrypt(ciphertext, mode=ECB())
+        return AES(key).decrypt(ciphertext, mode=ECB()).bytes()

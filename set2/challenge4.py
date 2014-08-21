@@ -1,7 +1,7 @@
 from common.challenge import MatasanoChallenge
 from common.ciphers.block.cipher import AES
 from common.ciphers.block.modes import ECB
-from common.ciphers.block.tools import ECB_CBCDetectionOracle, BlockRetriever
+from common.ciphers.block.tools import ECB_CBCDetectionOracle
 from common.base64 import Base64Decoder
 from common.tools import RandomByteGenerator
 
@@ -46,10 +46,10 @@ class ECBDecrypter(object):
         return 0
         
     def _discover_block_size(self):
-        previous_output = self.oracle.encrypt('X')
+        previous_output = self.oracle.encrypt('X').bytes()
         for count in range(2, self.MAX_BLOCK_SIZE_TRIES):
             input_string = 'X'*count
-            output = self.oracle.encrypt(input_string)
+            output = self.oracle.encrypt(input_string).bytes()
             longest_prefix = self._get_longest_common_prefix(output,
                                                              previous_output)
             previous_output = output
@@ -61,13 +61,10 @@ class ECBDecrypter(object):
         if mode != ECB.name():
             raise RuntimeError('encryption mode not supported')
         
-    def _count_blocks_on(self, ciphertext):
-        return len(ciphertext)/self.block_size
-        
     def _discover_string_length(self):
         # Discover how many blocks the string uses.
         # Its actual length, however, is still unknown (might be padded).
-        block_count = self._count_blocks_on(self.oracle.encrypt(''))
+        block_count = self.oracle.encrypt('').block_count()
 
         # Now, push one more byte at a time until a new block is used.
         # Once this happens, the number of bytes pushed minus one is the
@@ -75,14 +72,14 @@ class ECBDecrypter(object):
         for i in range(1, self.block_size):
             input_string = 'X'*i
             output = self.oracle.encrypt(input_string)
-            if self._count_blocks_on(output) > block_count:
+            if output.block_count() > block_count:
                 return block_count*self.block_size - i + 1
         
     def _get_target_block(self, index):
         ciphertext = self.oracle.encrypt(self.input_string)
         # Index of the encrypted block where the desired byte is hiding.
         target_block_index = (index-1)/self.block_size
-        return BlockRetriever(ciphertext, self.block_size).value(target_block_index)
+        return ciphertext.get_block(target_block_index)
     
     def _get_possible_blocks(self):
         possible_blocks = dict()
@@ -90,7 +87,7 @@ class ECBDecrypter(object):
             char = chr(byte)
             input_string = self.test_string + char 
             ciphertext = self.oracle.encrypt(input_string)
-            block = BlockRetriever(ciphertext, self.block_size).value(0)
+            block = ciphertext.get_block(0)
             possible_blocks[block] = char
         return possible_blocks
     
