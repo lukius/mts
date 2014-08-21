@@ -24,7 +24,11 @@ class Average(object):
 
 class RandomByteGenerator(object):
     
-    def value(self, count):
+    MAX_VALUE = 500
+    
+    def value(self, count=None):
+        if count is None:
+            count = random.randint(1, self.MAX_VALUE)
         random_bytes = [chr(random.choice(range(255))) for _ in range(count)]
         return Concatenation(random_bytes).value()        
 

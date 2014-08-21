@@ -20,6 +20,11 @@ class BlockString(object):
             raise IndexError('block index out of range')
         return BlockRetriever(self.string, self.block_size).value(index)
     
+    def remove_block(self, index):
+        start_index = index*self.block_size
+        end_index = start_index + self.block_size
+        self.string = self.string[:start_index] + self.string[end_index:]
+    
     def bytes(self):
         return self.string
 
