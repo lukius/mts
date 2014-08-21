@@ -30,7 +30,7 @@ class ECBDecrypterForRandomPrefixOracle(ECBDecrypter):
             if self._blocks_equal(block, next_blocks):
                 return index 
     
-    def _discover_random_prefix_length(self):
+    def _discover_random_prefix_bypass_values(self):
         probe = 'X'*((1+self.EXPECTED_EQUAL_BLOCKS)*self.block_size - 1)
         ciphertext = self.oracle.encrypt(probe)
         start_index = self._search_equal_blocks_starting_point(ciphertext)
@@ -38,27 +38,20 @@ class ECBDecrypterForRandomPrefixOracle(ECBDecrypter):
         for k in xrange(self.block_size, 2*self.block_size):
             output = self.oracle.encrypt('X'*k)
             if output.get_block(start_index) == target_block:
-                # This magic can be understood as follows:
-                #  * We have (start_index - 1) full random-byte blocks.
+                #  * At start_index, non-random blocks start to appear.
+                #  * Thus, we must ignore the first start_index blocks.
+                self.skip_blocks = start_index
                 #  * We have just found that k bytes fill the last random-byte
                 #    block and make one block worth of Xs.
-                #  * Thus, the last random-byte block must have
-                #    block_size - (k - block_size) random bytes
-                #  * Then, total random byte length equals
-                #   (start_index - 1)*block_size + block_size - (k-block_size)
-                #   = (start_index + 1)*block_size - k 
-                return (start_index+1)*self.block_size - k
+                #  * Thus, we must pad the last random-byte block with exactly
+                #    k - block_size  bytes.
+                self.pad_string = 'X'*(k - self.block_size)
+                return
         
     def value(self):
         # TODO: fix block size calculation.
         self.block_size = self.BLOCK_SIZE
-        prefix_length = self._discover_random_prefix_length()
-        min_block_count, additional_bytes = divmod(prefix_length,
-                                                   self.block_size)
-        self.skip_blocks = min_block_count
-        if additional_bytes != 0:
-            self.skip_blocks += 1
-            self.pad_string = 'X'*(self.block_size - additional_bytes)
+        self._discover_random_prefix_bypass_values()
         return ECBDecrypter._decrypt_string(self)
         
 
