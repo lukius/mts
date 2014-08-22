@@ -27,6 +27,15 @@ class HexToBinary(object):
         return bin_string
     
     
+class HexToInt(object):
+    
+    def __init__(self, hex_string):
+        self.hex_string = hex_string
+        
+    def value(self):
+        return int(self.hex_string, 16)
+            
+    
 class BinaryToHex(object):
     
     def __init__(self, bin_string):
@@ -56,8 +65,11 @@ class IntToHex(object):
         self.integer = integer
         
     def value(self):
-        return hex(self.integer)[2:]
-    
+        hex_string = hex(self.integer)[2:]
+        if hex_string[-1] == 'L':
+            hex_string = hex_string[:-1]
+        return _ensure_length_multiple_of(hex_string, 2)
+
 
 class IntToBinary(object):
     

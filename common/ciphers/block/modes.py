@@ -1,7 +1,7 @@
 from string import BlockString
 
 from common.converters import BytesToHex, HexToBytes
-from common.padders import PKCS7Padder
+from common.padders import PKCS7Padder, PKCS7Unpadder
 from common.xor import HexXOR
 
 
@@ -19,12 +19,6 @@ class BlockCipherMode(object):
     
     def _is_last_block(self, index):
         return index == self.block_string.block_count()-1
-    
-    def _remove_padding(self, block):
-        last_char = ord(block[-1])
-        if 1 <= last_char <= self.block_size - 1:
-            block = block[:-last_char]
-        return block
     
     def _iterate_blocks(self, callback):
         for index, block in enumerate(self.block_string): 
@@ -65,7 +59,7 @@ class ECB(BlockCipherMode):
     def _block_decryption_callback(self, index, block):
         plaintext_block = self.cipher.decrypt_block(block)
         if self._is_last_block(index):
-            plaintext_block = self._remove_padding(plaintext_block)
+            plaintext_block = PKCS7Unpadder(plaintext_block).value()
         self.result += plaintext_block    
     
 
@@ -97,6 +91,6 @@ class CBC(BlockCipherMode):
         plaintext_block = self._xor(decrypted_block,
                                     self.last_ciphertext_block)
         if self._is_last_block(index):
-            plaintext_block = self._remove_padding(plaintext_block)
+            plaintext_block = PKCS7Unpadder(plaintext_block).value()
         self.last_ciphertext_block = block
         self.result += plaintext_block

@@ -1,7 +1,6 @@
-from converters import HexToBytes, IntToHex
+from converters import HexToBytes, IntToHex, HexToInt
 from freq import EnglishFrequencyScorer
 from padders import LeftPadder
-from tools import Concatenation
 
 
 class HexXOR(object):
@@ -13,14 +12,11 @@ class HexXOR(object):
         self.string2 = string2
         
     def value(self):
-        from common.converters import HexToBinary, BinaryToHex
-        bin_string1 = HexToBinary(self.string1).value()
-        bin_string2 = HexToBinary(self.string2).value()
-        pairs = zip(bin_string1, bin_string2)
-        pairs_xored = map(lambda (bit1, bit2): str(int(bit1) ^ int(bit2)),
-                          pairs)
-        bin_string = Concatenation(pairs_xored).value()
-        return BinaryToHex(bin_string).value()
+        integer1 = HexToInt(self.string1).value()
+        integer2 = HexToInt(self.string2).value()
+        xored = integer1 ^ integer2
+        string = IntToHex(xored).value()
+        return LeftPadder(string).value(len(self.string1))
     
     
 class SingleByteXORDecipher(object):

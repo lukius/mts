@@ -2,7 +2,7 @@ from modes import ECB, CBC
 from cipher import AES
 
 from common.base64 import Base64Decoder
-from common.tools import RandomByteGenerator
+from common.tools import RandomByteGenerator, AllEqual
 
 
 class ECB_CBCDetectionOracle(object):
@@ -14,9 +14,6 @@ class ECB_CBCDetectionOracle(object):
         self.block_size = block_size if block_size is not None \
                           else ECB.DEFAULT_BLOCK_SIZE
 
-    def _all_equal(self, blocks):
-        return len(set(blocks)) == 1
-    
     def _build_chosen_plaintext(self):
         return 'X'*self.block_size*self.BLOCKS
     
@@ -25,7 +22,8 @@ class ECB_CBCDetectionOracle(object):
         ciphertext = self.encrypter.encrypt(plaintext)
         blocks = [ciphertext.get_block(i) for i in range(5)]
         # Skip first block in case it includes random, non-controlled data.
-        if self._all_equal(blocks[1:]):
+        all_blocks_equal = AllEqual(blocks[1:]).value()
+        if all_blocks_equal:
             mode = ECB.name()
         else:
             mode = CBC.name()

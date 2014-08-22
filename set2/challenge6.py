@@ -1,6 +1,6 @@
 from common.challenge import MatasanoChallenge
 from common.ciphers.block.tools import ECBDecrypter, ECBEncryptionOracle
-from common.tools import RandomByteGenerator
+from common.tools import RandomByteGenerator, AllEqual
 
 
 class ECBEncryptionOracleWithRandomPrefix(ECBEncryptionOracle):
@@ -19,15 +19,13 @@ class ECBDecrypterForRandomPrefixOracle(ECBDecrypter):
     BLOCK_SIZE = 16
     EXPECTED_EQUAL_BLOCKS = 3
     
-    def _blocks_equal(self, block, blocks):
-        return all(map(lambda _block: _block == block, blocks))
-    
     def _search_equal_blocks_starting_point(self, ciphertext):
         for index, block in enumerate(ciphertext):
             next_blocks = [ciphertext.get_block(i)
                            for i in range(index+1,
                                           index+self.EXPECTED_EQUAL_BLOCKS)]
-            if self._blocks_equal(block, next_blocks):
+            all_blocks_equal = AllEqual(next_blocks).value(block)
+            if all_blocks_equal:
                 return index 
     
     def _discover_random_prefix_bypass_values(self):

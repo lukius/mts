@@ -30,7 +30,20 @@ class RandomByteGenerator(object):
         if count is None:
             count = random.randint(1, self.MAX_VALUE)
         random_bytes = [chr(random.choice(range(255))) for _ in range(count)]
-        return Concatenation(random_bytes).value()        
+        return Concatenation(random_bytes).value()
+    
+    
+class AllEqual(object):
+    
+    def __init__(self, objs):
+        self.objs = objs
+        
+    def value(self, obj=None):
+        if obj is None:
+            value = len(set(self.objs)) == 1
+        else:
+            value = all(map(lambda _obj: _obj == obj, self.objs))
+        return value      
 
 
 class HammingDistance(object):
