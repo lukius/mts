@@ -56,12 +56,6 @@ class AdminUserProfileGenerator(object):
     def __init__(self, profile_generator):
         self.profile_generator = profile_generator
         
-    def _merge_blocks(self, ciphertext1, ciphertext2):
-        block1 = ciphertext1.get_block(0)
-        block2 = ciphertext1.get_block(1)
-        block3 = ciphertext2.get_block(1)
-        return '%s%s%s' % (block1, block2, block3)
-
     def value(self):
         # 1. Use as input any email that makes the second block end just
         # before the role:
@@ -82,7 +76,8 @@ class AdminUserProfileGenerator(object):
         
         # 3. Keep first two blocks from ciphertext1 and second block from
         # ciphertext2.
-        return self._merge_blocks(ciphertext1, ciphertext2)
+        ciphertext1.replace_block(2, ciphertext2.get_block(1))
+        return ciphertext1
 
 
 class Set2Challenge5(MatasanoChallenge):
