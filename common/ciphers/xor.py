@@ -1,4 +1,4 @@
-from common.xor import HexXOR
+from common.xor import ByteXOR
 
 
 class XORCipher(object):
@@ -20,4 +20,4 @@ class XORCipher(object):
         
     def value(self, plaintext):
         extended_key = self._extend_key_for(plaintext)
-        return HexXOR(extended_key, plaintext).value()
+        return ByteXOR(extended_key, plaintext).value()

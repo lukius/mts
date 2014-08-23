@@ -1,4 +1,5 @@
 from common.challenge import MatasanoChallenge
+from common.converters import HexToBytes
 from common.xor import SingleByteXORDecipher
 
 
@@ -10,8 +11,9 @@ class SingleByteXORFinder(object):
     def value(self):
         max_score = 0
         for hex_string in self.hex_strings:
+            byte_string = HexToBytes(hex_string).value()
             _, plaintext, score = SingleByteXORDecipher().\
-                                    value(hex_string, with_score=True)
+                                    value(byte_string, with_score=True)
             if score > max_score:
                 candidate_plaintext = plaintext
                 max_score = score

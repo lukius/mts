@@ -55,9 +55,9 @@ class HammingDistance(object):
         self.string2 = string2
         
     def value(self):
-        from converters import HexToBinary
-        bin_string1 = HexToBinary(self.string1).value()
-        bin_string2 = HexToBinary(self.string2).value()
+        from converters import BytesToBinary
+        bin_string1 = BytesToBinary(self.string1).value()
+        bin_string2 = BytesToBinary(self.string2).value()
         pairs = zip(bin_string1, bin_string2)
         differences = reduce(lambda count, (bit1,bit2): count + (bit1 != bit2),
                              pairs, 0)

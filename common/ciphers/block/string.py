@@ -10,6 +10,11 @@ class BlockString(object):
         self.string = string if string is not None else str()
         self.block_size = block_size if block_size is not None\
                           else BlockCipherMode.DEFAULT_BLOCK_SIZE
+                          
+    def _get_boundaries_for(self, index):
+        start_index = index*self.block_size
+        end_index = start_index + self.block_size
+        return (start_index, end_index)
         
     def block_count(self):
         return int(ceil(len(self.string)/float(self.block_size)))
@@ -21,9 +26,13 @@ class BlockString(object):
         return BlockRetriever(self.string, self.block_size).value(index)
     
     def remove_block(self, index):
-        start_index = index*self.block_size
-        end_index = start_index + self.block_size
+        start_index, end_index = self._get_boundaries_for(index)
         self.string = self.string[:start_index] + self.string[end_index:]
+        
+    def replace_block(self, index, new_block):
+        start_index, end_index = self._get_boundaries_for(index)
+        self.string = self.string[:start_index] + new_block + \
+                      self.string[end_index:]
     
     def bytes(self):
         return self.string

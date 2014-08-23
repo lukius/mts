@@ -102,13 +102,13 @@ class ECBDecrypter(object):
         block_count = self._encrypt('').block_count()
 
         # Now, push one more byte at a time until a new block is used.
-        # Once this happens, the number of bytes pushed minus one is the
-        # value we are looking for.
+        # Once this happens, the number of bytes pushed is the value we
+        # are looking for.
         for i in range(1, self.block_size):
             input_string = 'X'*i
             output = self._encrypt(input_string)
             if output.block_count() > block_count:
-                return block_count*self.block_size - i + 1
+                return block_count*self.block_size - i
         
     def _get_target_block(self, index):
         ciphertext = self._encrypt(self.input_string)

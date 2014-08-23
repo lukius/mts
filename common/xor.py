@@ -1,43 +1,63 @@
-from converters import HexToBytes, IntToHex, HexToInt
+from converters import IntToHex, HexToInt, BytesToInt, IntToBytes
 from freq import EnglishFrequencyScorer
-from padders import LeftPadder
 
 
-class HexXOR(object):
+class XOR(object):
     
     def __init__(self, string1, string2):
-        if len(string1) != len(string2):
-            raise RuntimeError('strings must have equal length')
         self.string1 = string1
         self.string2 = string2
         
+    def _to_int(self, string):
+        converter = self._to_int_converter() 
+        return converter(string).value()
+    
+    def _from_int(self, integer):
+        converter = self._from_int_converter() 
+        return converter(integer).value()
+        
     def value(self):
-        integer1 = HexToInt(self.string1).value()
-        integer2 = HexToInt(self.string2).value()
+        integer1 = self._to_int(self.string1)
+        integer2 = self._to_int(self.string2)
         xored = integer1 ^ integer2
-        string = IntToHex(xored).value()
-        return LeftPadder(string).value(len(self.string1))
+        return self._from_int(xored)
+
+
+class HexXOR(XOR):
+    
+    def _to_int_converter(self):
+        return HexToInt
+    
+    def _from_int_converter(self):
+        return IntToHex
+
+
+class ByteXOR(XOR):
+    
+    def _to_int_converter(self):
+        return BytesToInt
+    
+    def _from_int_converter(self):
+        return IntToBytes   
     
     
 class SingleByteXORDecipher(object):
     
-    def _xor_decrypt_with(self, key, hex_string):
-        length = len(hex_string)/2
-        extended_key = key*length
-        decrypted = HexXOR(hex_string, extended_key).value()
-        return HexToBytes(decrypted).value()
+    def _xor_decrypt_with(self, key, string):
+        extended_key = key*len(string)
+        return ByteXOR(string, extended_key).value()
     
     def _greater_than(self, number1, number2):
         return number2 is None or number1 > number2
     
-    def value(self, hex_string, with_score=False):
+    def value(self, string, with_score=False):
         max_score = None
         for byte in range(255):
-            hex_byte = LeftPadder(IntToHex(byte).value()).value(2)
-            plaintext = self._xor_decrypt_with(hex_byte, hex_string)
+            byte = chr(byte)
+            plaintext = self._xor_decrypt_with(byte, string)
             score = EnglishFrequencyScorer(plaintext).value()
             if self._greater_than(score, max_score):
-                candidate_key = hex_byte
+                candidate_key = byte
                 candidate_plaintext = plaintext
                 max_score = score
         values = (candidate_key, candidate_plaintext)

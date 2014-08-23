@@ -19,9 +19,14 @@ class Padder(object):
 
 class PKCS7Padder(Padder):
     
-    def _pad(self, size, char):
-        final_size = len(self.string) + size
-        return RightPadder(self.string).value(final_size, char=chr(size))
+    def value(self, size):
+        length = len(self.string)
+        if length % size == 0:
+            string = self.string + chr(size)*size
+        elif length < size:
+            pad_size = size - length
+            string = RightPadder(self.string).value(size, char=chr(pad_size))
+        return string
 
 
 class PKCS7Unpadder(object):

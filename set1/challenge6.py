@@ -1,6 +1,5 @@
 from common.base64 import Base64Decoder
 from common.challenge import MatasanoChallenge
-from common.converters import HexToBytes
 from common.tools import HammingDistance, Concatenation, Average
 from common.xor import SingleByteXORDecipher
 from common.ciphers.xor import XORCipher
@@ -29,49 +28,45 @@ class RepeatingKeyXORDecipher(object):
     def _hamming_distance(self, chunk1, chunk2):
         return HammingDistance(chunk1, chunk2).value()
 
-    def _get_byte_chunks(self, chunk_size, hex_string):
-        return [self._get_byte_chunk(i, chunk_size, hex_string)
+    def _get_byte_chunks(self, chunk_size, string):
+        return [self._get_byte_chunk(i, chunk_size, string)
                 for i in range(self.CHUNKS)]
     
-    def _get_byte_chunk(self, i, chunk_size, hex_string):
-        # Multiply by 2 since one byte has two hex digits.
-        limit = 2*chunk_size
-        return hex_string[i*limit:(i+1)*limit]
+    def _get_byte_chunk(self, i, chunk_size, string):
+        return string[i*chunk_size:(i+1)*chunk_size]
     
     def _less_than(self, distance1, distance2):
         return distance2 is None or distance1 < distance2
 
-    def _get_candidate_key_length(self, hex_string):
+    def _get_candidate_key_length(self, string):
         min_distance = None
         for key_length in range(self.MIN_KEY_LENGTH, self.MAX_KEY_LENGTH+1):
-            distance = self._compute_average_distance_for(key_length,
-                                                          hex_string)
+            distance = self._compute_average_distance_for(key_length, string)
             if self._less_than(distance, min_distance):
                 candidate_length = key_length
                 min_distance = distance
         return candidate_length
     
-    def _build_candidate_key(self, hex_string, key_length):
-        key_bytes = [self._decipher_key_byte(i, key_length, hex_string)
+    def _build_candidate_key(self, string, key_length):
+        key_bytes = [self._decipher_key_byte(i, key_length, string)
                      for i in range(key_length)]
         return Concatenation(key_bytes).value()
     
-    def _build_transposed_block(self, i, block_length, hex_string):
-        length = len(hex_string)
-        block_bytes = [hex_string[index:index+2]
-                       for index in xrange(2*i, length, 2*block_length)]
+    def _build_transposed_block(self, i, block_length, string):
+        length = len(string)
+        block_bytes = [string[index:index+1]
+                       for index in xrange(i, length, block_length)]
         return Concatenation(block_bytes).value()
     
-    def _decipher_key_byte(self, i, block_length, hex_string):
-        block_i = self._build_transposed_block(i, block_length, hex_string)
+    def _decipher_key_byte(self, i, block_length, string):
+        block_i = self._build_transposed_block(i, block_length, string)
         key, _ = SingleByteXORDecipher().value(block_i)
         return key
     
-    def value(self, hex_string):
-        key_length = self._get_candidate_key_length(hex_string)
-        key = self._build_candidate_key(hex_string, key_length)
-        hex_plaintext = XORCipher(key).decrypt(hex_string)
-        return HexToBytes(hex_plaintext).value()
+    def value(self, string):
+        key_length = self._get_candidate_key_length(string)
+        key = self._build_candidate_key(string, key_length)
+        return XORCipher(key).decrypt(string)
         
 
 class Set1Challenge6(MatasanoChallenge):
@@ -82,5 +77,5 @@ class Set1Challenge6(MatasanoChallenge):
     def value(self):
         target_file = 'set1/data/6.txt'
         content = open(target_file, 'r').read()
-        decoded_content = Base64Decoder().decode_to_hex(content)
+        decoded_content = Base64Decoder().decode(content)
         return RepeatingKeyXORDecipher().value(decoded_content)
