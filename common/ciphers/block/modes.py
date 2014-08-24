@@ -16,9 +16,6 @@ class BlockCipherMode(object):
         self.block_size = self.DEFAULT_BLOCK_SIZE if block_size is None\
                           else block_size 
     
-    def _is_last_block(self, index):
-        return index == self.block_string.block_count()-1
-    
     def _pad(self, string):
         last_block_index = string.block_count()-1
         last_block = string.get_block(last_block_index)
@@ -26,12 +23,12 @@ class BlockCipherMode(object):
         string.replace_block(last_block_index, last_block)
     
     def _unpad_if_needed(self, index, block):
-        if self._is_last_block(index):
+        if self.block_string.is_last_block_index(index):
             block = PKCS7Unpadder(block).value()
         return block    
     
     def _iterate_blocks(self, callback):
-        for index, block in enumerate(self.block_string): 
+        for index, block in enumerate(self.block_string):
             callback(index, block)
 
     def _iterate_blocks_with(self, block_string, cipher, callback):

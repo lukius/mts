@@ -69,9 +69,8 @@ class CBCBitFlippingAttack(object):
         # Now, XOR the first new block with the target value and the actual
         # plaintext value (we know this since we supplied it). 
         target_block = encrypted_profile.get_block(self.TARGET_BLOCK_INDEX)
-        string = ByteXOR('X'*len(self.TARGET_STRING), self.TARGET_STRING).\
-                 value()
-        tampered_block = ByteXOR(target_block, string).value()
+        tampered_block = ByteXOR('X'*len(self.TARGET_STRING),
+                                 self.TARGET_STRING, target_block).value()
         # This will propagate to the next block during decryption. The target
         # value will magically appear instead of the original plaintext value.
         encrypted_profile.replace_block(self.TARGET_BLOCK_INDEX, tampered_block)

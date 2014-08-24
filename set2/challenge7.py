@@ -1,5 +1,6 @@
 from common.challenge import MatasanoChallenge
-from common.padders import PKCS7Padder, PKCS7Unpadder        
+from common.padders import PKCS7Padder, PKCS7Unpadder 
+from common.padders import InvalidPaddingException       
 
 
 class Set2Challenge7(MatasanoChallenge):
@@ -14,12 +15,12 @@ class Set2Challenge7(MatasanoChallenge):
         
     def _test_invalid_padding(self):
         ill_padded_string = self.STRING + chr(5)*4
-        if not self._assert_raises(RuntimeError,
+        if not self._assert_raises(InvalidPaddingException,
                                    PKCS7Unpadder(ill_padded_string).value):
             return False
         
         ill_padded_string = self.STRING + chr(1) + chr(2) + chr(3) + chr(4)
-        if not self._assert_raises(RuntimeError,
+        if not self._assert_raises(InvalidPaddingException,
                                    PKCS7Unpadder(ill_padded_string).value):
             return False
         return True

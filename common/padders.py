@@ -29,6 +29,10 @@ class PKCS7Padder(Padder):
         return string
 
 
+class InvalidPaddingException(Exception):
+    pass
+
+
 class PKCS7Unpadder(object):
     
     def __init__(self, string):
@@ -39,7 +43,7 @@ class PKCS7Unpadder(object):
         pad_size = ord(pad_char)
         all_equal = AllEqual(self.string[-pad_size:]).value(pad_char)
         if not all_equal:
-            raise RuntimeError('bad padding')
+            raise InvalidPaddingException
         return self.string[:-pad_size]
 
 
