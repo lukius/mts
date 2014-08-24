@@ -1,8 +1,9 @@
 import binascii
 import math
 
+from tools import Concatenation 
+
 from common.padders import LeftPadder
-from tools import Concatenation
 
 
 def _ensure_length_multiple_of(string, value):
@@ -129,4 +130,15 @@ class BytesToBinary(object):
         
     def value(self):
         bin_strings = map(self._to_bin, self.string)
-        return Concatenation(bin_strings).value()        
+        return Concatenation(bin_strings).value()
+    
+    
+class LittleEndian(object):
+    
+    def __init__(self, integer):
+        self.integer = integer
+        
+    def value(self, size):
+        byte_string = IntToBytes(self.integer).value()
+        padded_bytes = LeftPadder(byte_string).value(size, char='\0')
+        return padded_bytes[::-1]     

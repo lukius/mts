@@ -27,16 +27,12 @@ class BlockCipherMode(object):
             block = PKCS7Unpadder(block).value()
         return block    
     
-    def _iterate_blocks(self, callback):
-        for index, block in enumerate(self.block_string):
-            callback(index, block)
-
     def _iterate_blocks_with(self, block_string, cipher, callback):
-        self.result = BlockString(block_size=self.block_size)
         self.cipher = cipher
         self.block_string = block_string
-        self._iterate_blocks(callback)
-        return self.result
+        result = BlockString(block_size=self.block_size)
+        return reduce(lambda _result, block: _result + callback(*block),
+                      enumerate(self.block_string), result)
 
     def _block_encryption_callback(self, message, cipher):
         raise NotImplementedError
@@ -61,12 +57,12 @@ class BlockCipherMode(object):
 class ECB(BlockCipherMode):
     
     def _block_encryption_callback(self, index, block):
-        self.result += self.cipher.encrypt_block(block)
+        return self.cipher.encrypt_block(block)
     
     def _block_decryption_callback(self, index, block):
         plaintext_block = self.cipher.decrypt_block(block)
         plaintext_block = self._unpad_if_needed(index, plaintext_block)
-        self.result += plaintext_block    
+        return plaintext_block    
     
 
 class CBC(BlockCipherMode):
@@ -84,7 +80,7 @@ class CBC(BlockCipherMode):
         xor_block = self._xor(block, self.last_ciphertext_block)
         ciphertext_block = self.cipher.encrypt_block(xor_block)        
         self.last_ciphertext_block = ciphertext_block
-        self.result += ciphertext_block
+        return ciphertext_block
     
     def _block_decryption_callback(self, index, block):
         if index == 0:
@@ -94,4 +90,34 @@ class CBC(BlockCipherMode):
                                     self.last_ciphertext_block)
         plaintext_block = self._unpad_if_needed(index, plaintext_block)
         self.last_ciphertext_block = block
-        self.result += plaintext_block
+        return plaintext_block
+        
+        
+class CTR(BlockCipherMode):
+    
+    def __init__(self, counter=None, nonce=None, block_size=None):
+        from counter import DefaultCounter, NonceBasedCounter
+        BlockCipherMode.__init__(self, block_size)
+        if nonce is not None:
+            counter = NonceBasedCounter(nonce, block_size)
+        self.counter = counter if counter is not None\
+                       else DefaultCounter(block_size)
+                       
+    def _pad(self, plaintext):
+        # CTR mode does not need padding.
+        return plaintext
+                       
+    def _xor(self, key, block):
+        block_length = len(block)
+        return ByteXOR(block, key[:block_length]).value()
+    
+    def _block_callback(self, index, block):
+        key_argument = self.counter.count(index)
+        key = self.cipher.encrypt_block(key_argument)
+        return self._xor(key, block)
+                       
+    def _block_encryption_callback(self, index, block):
+        return self._block_callback(index, block)
+    
+    def _block_decryption_callback(self, index, block):
+        return self._block_callback(index, block)

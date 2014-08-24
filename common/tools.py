@@ -43,8 +43,8 @@ class AllEqual(object):
             value = len(set(self.objs)) == 1
         else:
             value = all(map(lambda _obj: _obj == obj, self.objs))
-        return value      
-
+        return value
+    
 
 class HammingDistance(object):
     

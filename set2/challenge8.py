@@ -18,17 +18,10 @@ class UserProfileParser(object):
         text = text.replace('%3D', '=')
         return text        
 
-    def _parse(self, profile):
-        tuples = profile.split(';')
-        profile = defaultdict(lambda: None)
-        profile.update(map(lambda item: item.split('='), tuples))
-        return profile
-    
     def parse(self, encrypted_profile):
         profile_string = self.cipher.decrypt(encrypted_profile,
                                              mode=CBC(self.iv))
-        profile_string = self._unquote(profile_string.bytes())
-        return self._parse(profile_string)
+        return self._unquote(profile_string.bytes())
     
     
 class UserProfileGenerator(object):
@@ -59,7 +52,7 @@ class CBCBitFlippingAttack(object):
     def __init__(self, profile_generator, block_size):
         self.profile_generator = profile_generator
         self.block_size = block_size
-        
+
     def value(self):
         # Generate profile using enough data to make two extra blocks.
         # First 10 bytes complete the previous block. We assume knowledge
@@ -81,10 +74,7 @@ class Set2Challenge8(MatasanoChallenge):
 
     BLOCK_SIZE = 16
 
-    def expected_value(self):
-        return 'true'
-    
-    def value(self):
+    def validate(self):
         secret_key = RandomByteGenerator().value(self.BLOCK_SIZE)
         secret_iv = RandomByteGenerator().value(self.BLOCK_SIZE)
         profile_generator = UserProfileGenerator(secret_key, secret_iv)
@@ -92,4 +82,4 @@ class Set2Challenge8(MatasanoChallenge):
         encrypted_profile = attack.value()
         profile = UserProfileParser(secret_key, secret_iv).\
                   parse(encrypted_profile)
-        return profile['admin']
+        return ';admin=true' in profile
