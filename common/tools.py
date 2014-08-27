@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import random
 
 
@@ -55,7 +57,7 @@ class HammingDistance(object):
         self.string2 = string2
         
     def value(self):
-        from converters import BytesToBinary
+        from common.converters import BytesToBinary
         bin_string1 = BytesToBinary(self.string1).value()
         bin_string2 = BytesToBinary(self.string2).value()
         pairs = zip(bin_string1, bin_string2)
