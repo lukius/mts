@@ -15,7 +15,7 @@ class SingleByteXORDecrypter(object):
     
     def decrypt(self, string, with_score=False):
         max_score = None
-        for byte in range(255):
+        for byte in range(256):
             byte = chr(byte)
             plaintext = self._xor_decrypt_with(byte, string)
             score = EnglishFrequencyScorer(plaintext).value()
@@ -32,7 +32,7 @@ class SingleByteXORDecrypter(object):
 class RepeatingKeyXORDecrypter(object):
     
     MIN_KEY_LENGTH = 2
-    MAX_KEY_LENGTH = 40
+    MAX_KEY_LENGTH = 100
     CHUNKS = 4
     
     def _compute_average_distance_for(self, key_length, hex_string):

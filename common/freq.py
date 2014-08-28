@@ -6,14 +6,14 @@ class FrequencyScorer(object):
     
     NON_LETTERS = [char for char in string.printable
                    if char not in string.letters]
-    LIKELY_NON_LETTER_CHARS = [' ', '\n','.',',',';',':'] + list(string.digits)
+    LIKELY_NON_LETTER_CHARS = [' ', '\n','.',',',';',':','"','-', '\'', '/', '!', '?'] + list(string.digits)
     
     MAX_POINTS_ON_MATCH = 8
     MIN_PENALTY = 1
     MAX_PENALTY = MAX_POINTS_ON_MATCH
     EQUALITY_TOLERANCE = 0.03
-    MAX_FREQUENCY_DIFFERENCE = 0.1
-    UNLIKELY_CHARS_FREQUENCY_THRESHOLD = 0.1
+    MAX_FREQUENCY_DIFFERENCE = 0.06
+    UNLIKELY_CHARS_FREQUENCY_THRESHOLD = 0.02
     
     frequencies = None
     
