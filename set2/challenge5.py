@@ -1,7 +1,7 @@
 import random
 
 from common.challenge import MatasanoChallenge
-from common.ciphers.block.cipher import AES
+from common.ciphers.block.aes import AES
 from common.ciphers.block.modes import ECB
 from common.padders import PKCS7Padder
 from common.tools import RandomByteGenerator

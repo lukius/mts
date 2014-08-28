@@ -5,7 +5,7 @@ from common.challenge import MatasanoChallenge
 from common.padders import InvalidPaddingException, PKCS7Unpadder
 from common.tools import RandomByteGenerator
 from common.xor import ByteXOR
-from common.ciphers.block.cipher import AES
+from common.ciphers.block.aes import AES
 from common.ciphers.block.modes import CBC
 
 

@@ -1,5 +1,5 @@
 from modes import ECB, CBC
-from cipher import AES
+from common.ciphers.block.aes import AES
 
 from common.base64 import Base64Decoder
 from common.tools import RandomByteGenerator, AllEqual

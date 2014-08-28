@@ -1,7 +1,7 @@
 import random
 
 from common.challenge import MatasanoChallenge
-from common.ciphers.block.cipher import AES
+from common.ciphers.block.aes import AES
 from common.ciphers.block.modes import ECB, CBC
 from common.ciphers.block.tools import ECB_CBCDetectionOracle
 from common.tools import RandomByteGenerator

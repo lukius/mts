@@ -1,3 +1,9 @@
+from math import ceil
+
+from common.converters import IntToBytes
+from common.tools import Concatenation
+
+
 class MersenneTwister(object):
     
     STATE_SIZE = 624
@@ -26,6 +32,12 @@ class MersenneTwister(object):
     
     def _increment_index(self):
         self.index = (self.index + 1) % self.STATE_SIZE
+        
+    def rand_bytes(self, count):
+        int_count = int(ceil(count/4.0))
+        integers = [self.rand() for _ in range(int_count)]
+        int_bytes = map(lambda integer: IntToBytes(integer).value(), integers)
+        return Concatenation(int_bytes).value()[:count]  
         
     def rand(self):
         if self.index == 0:

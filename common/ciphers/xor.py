@@ -1,7 +1,8 @@
+from common.ciphers import Cipher
 from common.xor import ByteXOR
 
 
-class XORCipher(object):
+class XORCipher(Cipher):
     
     def __init__(self, key):
         self.key = key

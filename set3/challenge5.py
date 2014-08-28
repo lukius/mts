@@ -1,5 +1,5 @@
 from common.challenge import MatasanoChallenge
-from common.random.generators import MersenneTwister
+from common.random.mt19937 import MersenneTwister
 
 
 class Set3Challenge5(MatasanoChallenge):

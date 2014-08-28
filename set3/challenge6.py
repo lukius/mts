@@ -2,7 +2,7 @@ import random
 import time
 
 from common.challenge import MatasanoChallenge
-from common.random.generators import MersenneTwister
+from common.random.mt19937 import MersenneTwister
 
 
 class Clock(object):
