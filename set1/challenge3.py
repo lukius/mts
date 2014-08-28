@@ -1,6 +1,6 @@
 from common.challenge import MatasanoChallenge
 from common.converters import HexToBytes
-from common.xor import SingleByteXORDecipher 
+from common.attacks.xor import SingleByteXORDecrypter 
 
 
 class Set1Challenge3(MatasanoChallenge):
@@ -13,4 +13,4 @@ class Set1Challenge3(MatasanoChallenge):
 
     def value(self):
         byte_string = HexToBytes(self.STRING).value()
-        return SingleByteXORDecipher().value(byte_string)[1]
+        return SingleByteXORDecrypter().decrypt(byte_string)[1]

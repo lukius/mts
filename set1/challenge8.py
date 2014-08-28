@@ -1,4 +1,5 @@
 from common.challenge import MatasanoChallenge
+from common.tools import FileLines
 
 
 class ECBEncryptionFinder(object):
@@ -28,6 +29,8 @@ class ECBEncryptionFinder(object):
 
 class Set1Challenge8(MatasanoChallenge):
     
+    FILE = 'set1/data/8.txt'
+    
     def expected_value(self):
         return 'd880619740a8a19b7840a8a31c810a3d08649af70dc06f4fd5d2d69c744' +\
                'cd283e2dd052f6b641dbf9d11b0348542bb5708649af70dc06f4fd5d2d6' +\
@@ -37,6 +40,5 @@ class Set1Challenge8(MatasanoChallenge):
                '933f2c123c58386b06fba186a'
 
     def value(self):
-        target_file = 'set1/data/8.txt'
-        hex_strings = open(target_file, 'r').read().splitlines()
+        hex_strings = FileLines(self.FILE).value()
         return ECBEncryptionFinder(hex_strings).value()

@@ -3,7 +3,7 @@ import random
 from common.base64 import Base64Decoder
 from common.challenge import MatasanoChallenge
 from common.padders import InvalidPaddingException, PKCS7Unpadder
-from common.tools import RandomByteGenerator
+from common.tools import RandomByteGenerator, FileLines
 from common.xor import ByteXOR
 from common.ciphers.block.aes import AES
 from common.ciphers.block.modes import CBC
@@ -135,7 +135,7 @@ class Set3Challenge1(MatasanoChallenge):
         self.plaintext = self._choose_plaintext()
 
     def _choose_plaintext(self):
-        plaintexts = open(self.INPUT_FILE, 'r').read().splitlines()
+        plaintexts = FileLines(self.INPUT_FILE).value()
         plaintext = random.choice(plaintexts) 
         return Base64Decoder().decode(plaintext)
 

@@ -1,6 +1,5 @@
 from converters import IntToHex, HexToInt, BytesToInt, IntToBytes
 from padders import LeftPadder
-from freq import EnglishFrequencyScorer
 
 
 class XOR(object):
@@ -47,29 +46,4 @@ class ByteXOR(XOR):
         return IntToBytes   
 
     def _pad_char(self):
-        return '\0'    
-    
-    
-class SingleByteXORDecipher(object):
-    
-    def _xor_decrypt_with(self, key, string):
-        extended_key = key*len(string)
-        return ByteXOR(string, extended_key).value()
-    
-    def _greater_than(self, number1, number2):
-        return number2 is None or number1 > number2
-    
-    def value(self, string, with_score=False):
-        max_score = None
-        for byte in range(255):
-            byte = chr(byte)
-            plaintext = self._xor_decrypt_with(byte, string)
-            score = EnglishFrequencyScorer(plaintext).value()
-            if self._greater_than(score, max_score):
-                candidate_key = byte
-                candidate_plaintext = plaintext
-                max_score = score
-        values = (candidate_key, candidate_plaintext)
-        if with_score:
-            values += (max_score,)
-        return values
+        return '\0'

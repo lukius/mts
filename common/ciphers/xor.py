@@ -1,5 +1,4 @@
 from common.ciphers import Cipher
-from common.xor import ByteXOR
 
 
 class XORCipher(Cipher):
@@ -20,5 +19,6 @@ class XORCipher(Cipher):
         return self.value(ciphertext)
         
     def value(self, plaintext):
+        from common.xor import ByteXOR
         extended_key = self._extend_key_for(plaintext)
         return ByteXOR(extended_key, plaintext).value()

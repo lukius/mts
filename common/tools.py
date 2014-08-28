@@ -12,6 +12,15 @@ class Concatenation(object):
         initial_value = type(self.objs[0])()
         return reduce(lambda result, obj: result + obj,
                       self.objs, initial_value)
+        
+        
+class FileLines(object):
+    
+    def __init__(self, filename):
+        self.filename = filename
+        
+    def value(self):
+        return open(self.filename, 'r').read().splitlines()
 
 
 class Average(object):
