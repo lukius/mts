@@ -6,12 +6,13 @@ from common.ciphers.block.modes import ECB
     
 class Set1Challenge7(MatasanoChallenge):
     
+    ANSWER_FILE = 'set1/data/6ans.txt'
+    FILE = 'set1/data/7.txt'
+    
     def expected_value(self):
-        return open('set1/data/6ans.txt', 'r').read()
+        return open(self.ANSWER_FILE, 'r').read()
 
     def value(self):
-        target_file = 'set1/data/7.txt'
         key = 'YELLOW SUBMARINE'
-        content = open(target_file, 'r').read()
-        ciphertext = Base64Decoder().decode(content)
+        ciphertext = Base64Decoder().decode_file(self.FILE)
         return AES(key).decrypt(ciphertext, mode=ECB()).bytes()

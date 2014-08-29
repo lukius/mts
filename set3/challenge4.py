@@ -41,8 +41,6 @@ class Set3Challenge4(MatasanoChallenge):
                    plaintexts)
     
     def value(self):
-        strings = FileLines(self.FILE).value()
-        decoder = Base64Decoder()
-        plaintexts = map(lambda string: decoder.decode(string), strings)
+        plaintexts = Base64Decoder().decode_file_lines(self.FILE)
         ciphertexts = self._encrypt(plaintexts)
         return FixedNonceCTRDecrypter().decrypt(ciphertexts)

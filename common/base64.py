@@ -1,6 +1,7 @@
 from common.converters import HexToBytes, IntToBinary, BinaryToHex,\
                               BytesToBinary, BinaryToBytes
 from common.padders import RightPadder, LeftPadder
+from common.tools import FileLines
 
 
 class Base64Encoder(object):
@@ -77,6 +78,14 @@ class Base64Decoder(object):
         bin_string = self._decode(string)
         return BinaryToBytes(bin_string).value()
     
+    def decode_file(self, filename):
+        content = open(filename, 'r').read()
+        return self.decode(content)
+    
+    def decode_file_lines(self, filename):
+        lines = FileLines(filename).value()
+        return map(lambda line: self.decode(line), lines)
+        
     def _decode(self, string):
         bin_string = str()
         string = string.strip()

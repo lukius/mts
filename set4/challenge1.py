@@ -1,0 +1,43 @@
+from common.base64 import Base64Decoder
+from common.challenge import MatasanoChallenge
+from common.ciphers.block.aes import AES, RandomAccessAES
+from common.ciphers.block.modes import ECB
+from common.tools import RandomByteGenerator
+        
+
+class RandomAccessAESDecrypter(object):
+    
+    def __init__(self, cipher):
+        self.cipher = cipher
+    
+    def decrypt(self, ciphertext):
+        plaintext = str()
+        for index, block in enumerate(ciphertext):
+            offset = index*ciphertext.block_size()
+            # Send same block as new "plaintext". The XOR will reveal the
+            # actual plaintext.
+            edited_ciphertext = self.cipher.edit(ciphertext, offset, block)
+            plaintext += edited_ciphertext.get_block(index)
+        return plaintext
+
+
+class Set4Challenge1(MatasanoChallenge):
+
+    FILE = 'set4/data/25.txt'
+    KEY = 'YELLOW SUBMARINE'
+    BLOCK_SIZE = 16
+    
+    def __init__(self):
+        MatasanoChallenge.__init__(self)
+        ciphertext = Base64Decoder().decode_file(self.FILE)
+        self.plaintext = AES(self.KEY).decrypt(ciphertext, mode=ECB()).bytes()
+    
+    def expected_value(self):
+        return self.plaintext
+    
+    def value(self):
+        key = RandomByteGenerator().value(self.BLOCK_SIZE)
+        cipher = RandomAccessAES(key)
+        ciphertext = cipher.encrypt(self.plaintext, nonce=0)
+        return RandomAccessAESDecrypter(cipher).decrypt(ciphertext)
+        

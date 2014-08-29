@@ -121,3 +121,17 @@ class CTR(BlockCipherMode):
     
     def _block_decryption_callback(self, index, block):
         return self._block_callback(index, block)
+    
+    
+class RandomAccessCTR(CTR):
+    
+    def __init__(self, *args, **kwargs):
+        CTR.__init__(self, *args, **kwargs)
+        self.keystream = str()
+        
+    def get_keystream(self):
+        return self.keystream
+        
+    def _xor(self, key, block):
+        self.keystream += key
+        return CTR._xor(self, key, block)

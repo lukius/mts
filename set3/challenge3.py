@@ -1,6 +1,6 @@
 from common.base64 import Base64Decoder
 from common.challenge import MatasanoChallenge
-from common.tools import FileLines, Concatenation
+from common.tools import Concatenation
         
 
 class Set3Challenge3(MatasanoChallenge):
@@ -11,9 +11,7 @@ class Set3Challenge3(MatasanoChallenge):
           '\x9d\x7e\x7b\x7b\xea\xd1'
     
     def expected_value(self):
-        lines = FileLines(self.ANSWER_FILE).value()
-        decoder = Base64Decoder()
-        decoded_lines = map(lambda line: decoder.decode(line), lines)
+        decoded_lines = Base64Decoder().decode_file_lines(self.ANSWER_FILE)
         return Concatenation(decoded_lines).value()
 
     def value(self):
