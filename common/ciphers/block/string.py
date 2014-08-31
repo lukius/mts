@@ -27,8 +27,11 @@ class BlockString(object):
     
     def get_block(self, index):
         from tools import BlockRetriever
-        if index >= self.block_count():
+        block_count = self.block_count()
+        if index >= block_count or index < -block_count:
             raise IndexError('block index out of range')
+        if index < 0:
+            index += block_count
         return BlockRetriever(self.string, self._block_size).value(index)
     
     def remove_block(self, index):

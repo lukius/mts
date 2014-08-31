@@ -60,4 +60,14 @@ class UserProfileGenerator(object):
     def profile_for(self, user_data):
         plaintext = '%s%s%s' % (self.PREFIX, user_data, self.SUFFIX)
         plaintext = self._quote(plaintext)
-        return self.cipher.encrypt(plaintext, mode=self.mode) 
+        return self.cipher.encrypt(plaintext, mode=self.mode)
+    
+    
+class InvalidProfileException(Exception):
+    
+    def __init__(self, profile):
+        Exception.__init__(self)
+        self.profile = profile
+        
+    def get_profile(self):
+        return self.profile
