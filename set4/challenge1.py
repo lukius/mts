@@ -11,14 +11,8 @@ class RandomAccessAESDecrypter(object):
         self.cipher = cipher
     
     def decrypt(self, ciphertext):
-        plaintext = str()
-        for index, block in enumerate(ciphertext):
-            offset = index*ciphertext.block_size()
-            # Send same block as new "plaintext". The XOR will reveal the
-            # actual plaintext.
-            edited_ciphertext = self.cipher.edit(ciphertext, offset, block)
-            plaintext += edited_ciphertext.get_block(index)
-        return plaintext
+        ciphertext = ciphertext.bytes()
+        return self.cipher.edit(ciphertext, 0, ciphertext).bytes()
 
 
 class Set4Challenge1(MatasanoChallenge):
@@ -40,4 +34,3 @@ class Set4Challenge1(MatasanoChallenge):
         cipher = RandomAccessAES(key)
         ciphertext = cipher.encrypt(self.plaintext, nonce=0)
         return RandomAccessAESDecrypter(cipher).decrypt(ciphertext)
-        
