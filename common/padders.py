@@ -1,3 +1,5 @@
+import struct
+
 from tools import AllEqual
 
 
@@ -15,6 +17,19 @@ class Padder(object):
         if length < size:
             string = self._pad(size - length, char)
         return string
+    
+    
+class SHA1Padder(Padder):
+    
+    def value(self, size=None):
+        if size is None:
+            size = len(self.string)
+        total_bit_length = size*8
+        zero_bytes = (448 - total_bit_length - 8) % 512
+        zero_bits = zero_bytes/8
+        packed_length = struct.pack('>Q', total_bit_length)
+        return '%s%s%s%s' % (self.string, '\x80', '\0'*zero_bits,
+                             packed_length)        
 
 
 class PKCS7Padder(Padder):

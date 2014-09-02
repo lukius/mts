@@ -2,6 +2,7 @@ import struct
 
 from common.converters import IntToBytes
 from common.hash import HashFunction
+from common.padders import SHA1Padder
 
 
 class SHA1(HashFunction):
@@ -21,20 +22,7 @@ class SHA1(HashFunction):
         self.h4 = self.H4
         
     def _pad_message(self, message):
-        bit_length = len(message)*8
-        
-        # Append bit 1 to the message.
-        message += '\x80'
-        
-        # Add zeros; bit length should be equal to 448 mod 512.
-        zero_bytes = (448 - bit_length - 8) % 512
-        zero_bits = zero_bytes/8
-        message += '\0' * zero_bits
-        
-        # Append bit length as a 64-bit big-endian integer.
-        message += struct.pack('>Q', bit_length)
-        
-        return message        
+        return SHA1Padder(message).value()
     
     def _rotate_left(self, integer, count):
         return ((integer << count) |\
