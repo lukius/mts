@@ -44,8 +44,8 @@ class SHA1BasedMACMessageForger(object):
             # Second step: assemble the message to resume SHA1 computations:
             # <appendix> + <SHA1 padding for the appendix>
             # + <total bit length, including the guessed key length>
-            # Since message_to_forge has already k*512 bits, the SHA1 
-            # padding for the appendix alone will work fine.
+            # Since message_to_forge has already k*512 bits before the
+            # appendix, the SHA1 padding for the appendix alone will work fine.
             message_to_hash = self._build_message_to_hash(message_to_forge,
                                                           new_message,
                                                           key_length)
