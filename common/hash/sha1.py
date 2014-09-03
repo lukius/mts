@@ -2,17 +2,18 @@ import struct
 
 from common.converters import IntToBytes
 from common.hash import HashFunction
+from common.int import FixedSizeInteger
 from common.padders import SHA1Padder
 
 
 class SHA1(HashFunction):
     # Based on Wikipedia pseudocode.
     
-    H0 = 0x67452301
-    H1 = 0xefcdab89
-    H2 = 0x98badcfe
-    H3 = 0x10325476
-    H4 = 0xc3d2e1f0
+    H0 = FixedSizeInteger(0x67452301)
+    H1 = FixedSizeInteger(0xefcdab89)
+    H2 = FixedSizeInteger(0x98badcfe)
+    H3 = FixedSizeInteger(0x10325476)
+    H4 = FixedSizeInteger(0xc3d2e1f0)
     
     def _initialize_values(self):
         self.h0 = self.H0
@@ -25,8 +26,7 @@ class SHA1(HashFunction):
         return SHA1Padder(message).value()
     
     def _rotate_left(self, integer, count):
-        return ((integer << count) |\
-                (integer >> (32 - count))) & 0xffffffff
+        return ((integer << count) | (integer >> (32 - count))) & 0xffffffff
 
     def _get_big_endian_words_from(self, chunk):
         words = list()
@@ -46,11 +46,11 @@ class SHA1(HashFunction):
         w = self._get_big_endian_words_from(chunk)
         w = self._extend_words(w)
 
-        a = self.h0
-        b = self.h1
-        c = self.h2
-        d = self.h3
-        e = self.h4
+        a = int(self.h0)
+        b = int(self.h1)
+        c = int(self.h2)
+        d = int(self.h3)
+        e = int(self.h4)
     
         for i in range(80):
             if 0 <= i <= 19:
@@ -66,19 +66,19 @@ class SHA1(HashFunction):
                 f = b ^ c ^ d
                 k = 0xca62c1d6
     
-            temp = (self._rotate_left(a, 5) + f + e + k + w[i])\
-                   & 0xffffffff
+            temp = FixedSizeInteger(self._rotate_left(a, 5) + f + e + k + w[i])
+
             e = d
             d = c
             c = self._rotate_left(b, 30)
             b = a
-            a = temp
+            a = int(temp)
 
         return a, b, c, d, e
     
     def _compute_value(self):
-        return (self.h0<<128) + (self.h1<<96) + (self.h2<<64) +\
-               (self.h3<<32) + self.h4
+        return (int(self.h0)<<128) + (int(self.h1)<<96) +\
+               (int(self.h2)<<64) + (int(self.h3)<<32) + int(self.h4)
 
     def hash(self, message):
         self._initialize_values()
@@ -89,11 +89,11 @@ class SHA1(HashFunction):
             a, b, c, d, e = self._process_chunk(message[i:i+64])
             
             # Add chunk hash to result.
-            self.h0 = (self.h0 + a) & 0xffffffff
-            self.h1 = (self.h1 + b) & 0xffffffff 
-            self.h2 = (self.h2 + c) & 0xffffffff
-            self.h3 = (self.h3 + d) & 0xffffffff
-            self.h4 = (self.h4 + e) & 0xffffffff            
+            self.h0 += a
+            self.h1 += b 
+            self.h2 += c
+            self.h3 += d
+            self.h4 += e            
         
         hash_value = self._compute_value()
         return IntToBytes(hash_value).value()

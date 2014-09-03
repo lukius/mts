@@ -3,6 +3,7 @@ import struct
 from common.challenge import MatasanoChallenge
 from common.converters import BytesToInt
 from common.hash.sha1 import SHA1
+from common.int import FixedSizeInteger
 from common.mac.sha1 import SHA1BasedMAC
 from common.padders import SHA1Padder
 from common.tools import RandomByteGenerator
@@ -60,11 +61,11 @@ class ResumableSHA1(SHA1):
         self.registers = registers
         
     def _initialize_values(self):
-        self.h0 = self.registers[0]
-        self.h1 = self.registers[1]
-        self.h2 = self.registers[2]
-        self.h3 = self.registers[3]
-        self.h4 = self.registers[4]
+        self.h0 = FixedSizeInteger(self.registers[0])
+        self.h1 = FixedSizeInteger(self.registers[1])
+        self.h2 = FixedSizeInteger(self.registers[2])
+        self.h3 = FixedSizeInteger(self.registers[3])
+        self.h4 = FixedSizeInteger(self.registers[4])
         
     def _pad_message(self, message):
         # Treat incoming messages as if they were already padded.
