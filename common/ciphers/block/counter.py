@@ -1,6 +1,6 @@
 from modes import CTR
 
-from common.converters import LittleEndian
+from common.endianness import LittleEndian
 
 
 class CTRModeCounter(object):
@@ -16,7 +16,7 @@ class CTRModeCounter(object):
 class DefaultCounter(CTRModeCounter):
     
     def count(self, index):
-        return LittleEndian(index).value(self.block_size)
+        return LittleEndian.from_int(index, size=self.block_size).value()
     
     
 class NonceBasedCounter(CTRModeCounter):
@@ -26,6 +26,7 @@ class NonceBasedCounter(CTRModeCounter):
         self.nonce = nonce
     
     def count(self, index):
-        nonce = LittleEndian(self.nonce).value(self.block_size/2)
-        index = LittleEndian(index).value(self.block_size/2)
+        size = self.block_size/2
+        nonce = LittleEndian.from_int(self.nonce, size=size).value()
+        index = LittleEndian.from_int(index, size=size).value()
         return nonce + index

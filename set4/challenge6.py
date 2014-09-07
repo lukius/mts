@@ -1,17 +1,21 @@
 from common.attacks.mac import MDHashBasedMACMessageForger, ResumableMDHash
 from common.challenge import MatasanoChallenge
-from common.hash.sha1 import SHA1
-from common.mac.sha1 import SHA1BasedMAC
+from common.endianness import LittleEndian
+from common.hash.md4 import MD4
+from common.mac.md4 import MD4BasedMAC
 from common.tools import RandomByteGenerator
 
 
-class SHA1BasedMACMessageForger(MDHashBasedMACMessageForger):
+class MD4BasedMACMessageForger(MDHashBasedMACMessageForger):
+    
+    def _endianness(self):
+        return LittleEndian
     
     def _resumable_hash(self):
-        return ResumableMDHash(SHA1).value()
+        return ResumableMDHash(MD4).value()
 
 
-class Set4Challenge5(MatasanoChallenge):
+class Set4Challenge6(MatasanoChallenge):
     
     STRING = 'comment1=cooking%20MCs;userdata=foo;'+\
              'comment2=%20like%20a%20pound%20of%20bacon'
@@ -19,9 +23,9 @@ class Set4Challenge5(MatasanoChallenge):
 
     def validate(self):
         key = RandomByteGenerator().value(20)
-        sha1mac = SHA1BasedMAC(key)
+        sha1mac = MD4BasedMAC(key)
         string_mac = sha1mac.value(self.STRING)
-        message, mac = SHA1BasedMACMessageForger(sha1mac).\
+        message, mac = MD4BasedMACMessageForger(sha1mac).\
                        forge(self.STRING, string_mac, self.TARGET_STRING)
                        
         return message.startswith(self.STRING) and\

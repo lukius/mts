@@ -13,11 +13,12 @@ class SHA1(MDHashFunction):
     H3 = 0x10325476
     H4 = 0xc3d2e1f0
     
+    @classmethod
+    def padder(cls):
+        return SHA1Padder
+
     def _initialize_registers(self):
         self.registers = [self.H0, self.H1, self.H2, self.H3, self.H4]
-        
-    def _padder(self):
-        return SHA1Padder
     
     def _to_bytes(self, integer):
         return IntToBytes(integer).value(4)    

@@ -37,7 +37,7 @@ class MDHashFunction(HashFunction):
                                                  values[i])
             
     def _pad_message(self, message):
-        return self._padder()(message).value()   
+        return self.padder()(message).value()   
     
     def hash(self, message):
         self._initialize_registers()
@@ -52,7 +52,8 @@ class MDHashFunction(HashFunction):
     def _initialize_registers(self):
         raise NotImplementedError
     
-    def _padder(self):
+    @classmethod
+    def padder(cls):
         raise NotImplementedError
     
     def _process_chunk(self, chunk):

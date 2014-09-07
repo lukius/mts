@@ -3,6 +3,7 @@ import math
 
 from tools import Concatenation 
 
+from common.endianness import BigEndian
 from common.padders import LeftPadder
 
 
@@ -103,45 +104,36 @@ class IntToBytes(object):
         return int_bytes 
     
 
-class BytesToHex(object):
+class BytesConverter(object):
     
-    def __init__(self, string):
+    def __init__(self, string, endianness=BigEndian):
         self.string = string
+        self.endianness = endianness
         
     def value(self):
-        return binascii.hexlify(self.string)
-    
-    
-class BytesToInt(object):
+        string_bytes = self.endianness(self.string).value()
+        return self._value(string_bytes)
 
-    def __init__(self, string):
-        self.string = string
+
+class BytesToHex(BytesConverter):
         
-    def value(self):
-        hex_string = BytesToHex(self.string).value()
+    def _value(self, string):
+        return binascii.hexlify(string)
+
+    
+class BytesToInt(BytesConverter):
+        
+    def _value(self, string):
+        hex_string = BytesToHex(string).value()
         return HexToInt(hex_string).value()
 
 
-class BytesToBinary(object):
-    
-    def __init__(self, string):
-        self.string = string
+class BytesToBinary(BytesConverter):
     
     def _to_bin(self, char):
         bin_string = bin(ord(char))[2:]
         return LeftPadder(bin_string).value(8)
         
-    def value(self):
-        bin_strings = map(self._to_bin, self.string)
+    def _value(self, string):
+        bin_strings = map(self._to_bin, string)
         return Concatenation(bin_strings).value()
-    
-    
-class LittleEndian(object):
-    
-    def __init__(self, integer):
-        self.integer = integer
-        
-    def value(self, size):
-        byte_string = IntToBytes(self.integer).value()
-        padded_bytes = LeftPadder(byte_string).value(size, char='\0')
-        return padded_bytes[::-1]     
