@@ -95,9 +95,12 @@ class IntToBytes(object):
     def __init__(self, integer):
         self.integer = integer
         
-    def value(self):
+    def value(self, size=None):
         hex_string = IntToHex(self.integer).value()
-        return HexToBytes(hex_string).value()
+        int_bytes = HexToBytes(hex_string).value()
+        if size is not None and len(int_bytes) < size:
+            int_bytes = LeftPadder(int_bytes).value(size, char='\0')
+        return int_bytes 
     
 
 class BytesToHex(object):

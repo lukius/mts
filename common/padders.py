@@ -18,8 +18,11 @@ class Padder(object):
             string = self._pad(size - length, char)
         return string
     
+
+class MDPadder(Padder):
     
-class SHA1Padder(Padder):
+    def _pack_string(self):
+        raise NotImplementedError    
     
     def value(self, size=None):
         if size is None:
@@ -27,9 +30,21 @@ class SHA1Padder(Padder):
         total_bit_length = size*8
         zero_bytes = (448 - total_bit_length - 8) % 512
         zero_bits = zero_bytes/8
-        packed_length = struct.pack('>Q', total_bit_length)
+        packed_length = struct.pack(self._pack_string(), total_bit_length)
         return '%s%s%s%s' % (self.string, '\x80', '\0'*zero_bits,
-                             packed_length)        
+                             packed_length)
+
+
+class SHA1Padder(MDPadder):
+    
+    def _pack_string(self):
+        return '>Q'
+
+
+class MD4Padder(MDPadder):
+    
+    def _pack_string(self):
+        return '<Q'           
 
 
 class PKCS7Padder(Padder):
