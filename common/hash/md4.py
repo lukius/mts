@@ -94,7 +94,7 @@ class MD4(MDHashFunction):
     def _process_chunk(self, chunk):
         a, b, c, d = self.registers
 
-        words = self._get_little_endian_words_from(chunk)
+        words = self._get_words_from(chunk)
         a, b, c, d = self._round_1(words, a, b, c, d)
         a, b, c, d = self._round_2(words, a, b, c, d)
         a, b, c, d = self._round_3(words, a, b, c, d)

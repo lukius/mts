@@ -1,4 +1,3 @@
-from common.endianness import BigEndian, LittleEndian
 from common.hash import HashFunction
 from common.padders import MDPadder
 from common.tools import Concatenation
@@ -6,10 +5,6 @@ from common.tools import Concatenation
 
 class MDHashFunction(HashFunction):
     
-    @classmethod
-    def endianness(cls):
-        return BigEndian
-
     def __init__(self):
         HashFunction.__init__(self)
         self.mask = 0xffffffff
@@ -20,16 +15,10 @@ class MDHashFunction(HashFunction):
     def _rotate_left(self, integer, count):
         return ((integer << count) | (integer >> (32 - count))) & self.mask
     
-    def _get_big_endian_words_from(self, chunk):
-        return self._get_words_with_endianness(chunk, BigEndian)
-    
-    def _get_little_endian_words_from(self, chunk):
-        return self._get_words_with_endianness(chunk, LittleEndian)    
-    
-    def _get_words_with_endianness(self, chunk, endianness):
+    def _get_words_from(self, chunk):
         words = list()
         for i in range(0, len(chunk), 4):
-            word = endianness.to_int(chunk[i:i+4]).value()
+            word = self.endianness().to_int(chunk[i:i+4]).value()
             words.append(word)
         return words
     

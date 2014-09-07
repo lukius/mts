@@ -1,3 +1,4 @@
+from common.endianness import BigEndian
 from common.hash.md import MDHashFunction
 
 
@@ -9,6 +10,10 @@ class SHA1(MDHashFunction):
     H2 = 0x98badcfe
     H3 = 0x10325476
     H4 = 0xc3d2e1f0
+    
+    @classmethod
+    def endianness(cls):
+        return BigEndian    
     
     def _initialize_registers(self):
         self.registers = [self.H0, self.H1, self.H2, self.H3, self.H4]
@@ -27,7 +32,7 @@ class SHA1(MDHashFunction):
         return self._capped_sum(sum3, x)
 
     def _process_chunk(self, chunk):
-        w = self._get_big_endian_words_from(chunk)
+        w = self._get_words_from(chunk)
         w = self._extend_words(w)
 
         a, b, c, d, e = self.registers
