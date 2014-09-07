@@ -1,4 +1,3 @@
-from common.converters import BytesToInt
 from common.padders import MDPadder
 
 
@@ -15,8 +14,7 @@ class MDHashBasedMACMessageForger(object):
         return MDPadder(message, self.endianness).value(size)
         
     def _get_registers_from(self, hash_bytes):
-        return [BytesToInt(hash_bytes[i:i+4],
-                           endianness=self.endianness).value()
+        return [self.endianness.to_int(hash_bytes[i:i+4]).value()
                 for i in range(0, len(hash_bytes), 4)]
         
     def _build_message_to_forge(self, message, new_message, key_length):
