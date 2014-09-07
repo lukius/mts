@@ -6,11 +6,20 @@ class Endianness(object):
         string = IntToBytes(integer).value(size)
         return cls(string)
     
-    def __init__(self, byte_string):
-        self.string = self._value(byte_string)
+    @classmethod
+    def to_int(cls, string):
+        from common.converters import BytesToInt
+        integer = BytesToInt(string, endianness=cls).value()
+        return cls(integer)
+    
+    def __init__(self, value):
+        if type(value) is str:
+            self.result = self._value(value)
+        else:
+            self.result = value
         
     def value(self):
-        return self.string
+        return self.result
     
     def _value(self, string):
         raise NotImplementedError

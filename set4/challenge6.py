@@ -1,15 +1,11 @@
 from common.attacks.mac import MDHashBasedMACMessageForger, ResumableMDHash
 from common.challenge import MatasanoChallenge
-from common.endianness import LittleEndian
 from common.hash.md4 import MD4
 from common.mac.md4 import MD4BasedMAC
 from common.tools import RandomByteGenerator
 
 
 class MD4BasedMACMessageForger(MDHashBasedMACMessageForger):
-    
-    def _endianness(self):
-        return LittleEndian
     
     def _resumable_hash(self):
         return ResumableMDHash(MD4).value()

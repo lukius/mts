@@ -1,7 +1,4 @@
 from common.hash.md import MDHashFunction
-from common.padders import SHA1Padder
-from common.converters import IntToBytes
-from common.tools import Concatenation
 
 
 class SHA1(MDHashFunction):
@@ -13,15 +10,8 @@ class SHA1(MDHashFunction):
     H3 = 0x10325476
     H4 = 0xc3d2e1f0
     
-    @classmethod
-    def padder(cls):
-        return SHA1Padder
-
     def _initialize_registers(self):
         self.registers = [self.H0, self.H1, self.H2, self.H3, self.H4]
-    
-    def _to_bytes(self, integer):
-        return IntToBytes(integer).value(4)    
     
     def _extend_words(self, words):
         for i in range(16, 80):
@@ -65,7 +55,3 @@ class SHA1(MDHashFunction):
             a = temp
 
         return a, b, c, d, e
-    
-    def _compute_value(self):
-        registers = map(self._to_bytes, self.registers)
-        return Concatenation(registers).value()

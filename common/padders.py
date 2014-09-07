@@ -1,5 +1,3 @@
-import struct
-
 from tools import AllEqual
 
 
@@ -21,8 +19,9 @@ class Padder(object):
 
 class MDPadder(Padder):
     
-    def _pack_string(self):
-        raise NotImplementedError    
+    def __init__(self, string, endianness):
+        Padder.__init__(self, string)
+        self.endianness = endianness
     
     def value(self, size=None):
         if size is None:
@@ -30,21 +29,8 @@ class MDPadder(Padder):
         total_bit_length = size*8
         zero_bytes = (448 - total_bit_length - 8) % 512
         zero_bits = zero_bytes/8
-        packed_length = struct.pack(self._pack_string(), total_bit_length)
-        return '%s%s%s%s' % (self.string, '\x80', '\0'*zero_bits,
-                             packed_length)
-
-
-class SHA1Padder(MDPadder):
-    
-    def _pack_string(self):
-        return '>Q'
-
-
-class MD4Padder(MDPadder):
-    
-    def _pack_string(self):
-        return '<Q'           
+        length = self.endianness.from_int(total_bit_length, size=8).value()
+        return '%s%s%s%s' % (self.string, '\x80', '\0'*zero_bits, length)
 
 
 class PKCS7Padder(Padder):

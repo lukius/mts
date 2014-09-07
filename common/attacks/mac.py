@@ -1,5 +1,5 @@
 from common.converters import BytesToInt
-from common.endianness import BigEndian
+from common.padders import MDPadder
 
 
 class MDHashBasedMACMessageForger(object):
@@ -9,12 +9,10 @@ class MDHashBasedMACMessageForger(object):
     def __init__(self, mac_validator):
         self.mac_validator = mac_validator
         self.resumable_hash = self._resumable_hash()
-        self.padder = self.resumable_hash.padder()
-        self.endianness = self._endianness()
+        self.endianness = self.resumable_hash.endianness()
         
-    def _endianness(self):
-        # Overridable by subclasses if necessary.
-        return BigEndian
+    def _pad_message(self, message, size=None):
+        return MDPadder(message, self.endianness).value(size)
         
     def _get_registers_from(self, hash_bytes):
         return [BytesToInt(hash_bytes[i:i+4],
@@ -23,13 +21,13 @@ class MDHashBasedMACMessageForger(object):
         
     def _build_message_to_forge(self, message, new_message, key_length):
         total_prefix_length = key_length + len(message)
-        padded_message = self.padder(message).value(total_prefix_length)
+        padded_message = self._pad_message(message, total_prefix_length)
         return padded_message + new_message
     
     def _build_message_to_hash(self, message_to_forge, new_message,
                                key_length):
         total_bit_length = 8*(key_length + len(message_to_forge))
-        new_message_padded = self.padder(new_message).value()
+        new_message_padded = self._pad_message(new_message)
         return new_message_padded[:-8] +\
                self.endianness.from_int(total_bit_length, size=8).value()
             

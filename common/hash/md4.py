@@ -1,7 +1,5 @@
 from common.endianness import LittleEndian
 from common.hash.md import MDHashFunction
-from common.padders import MD4Padder
-from common.tools import Concatenation
 
 
 class MD4(MDHashFunction):
@@ -13,15 +11,12 @@ class MD4(MDHashFunction):
     D = 0x10325476
 
     @classmethod
-    def padder(cls):
-        return MD4Padder
+    def endianness(cls):
+        return LittleEndian
     
     def _initialize_registers(self):
         self.registers = [self.A, self.B, self.C, self.D]
     
-    def _to_little_endian(self, integer):
-        return LittleEndian.from_int(integer, size=4).value()
-
     def F(self, x, y, z):
         return (x & y) | (self._not(x) & z)
     
@@ -105,7 +100,3 @@ class MD4(MDHashFunction):
         a, b, c, d = self._round_3(words, a, b, c, d)
         
         return a, b, c, d
-
-    def _compute_value(self):
-        registers = map(self._to_little_endian, self.registers)
-        return Concatenation(registers).value()
