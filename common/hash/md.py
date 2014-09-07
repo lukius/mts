@@ -49,6 +49,10 @@ class MDHashFunction(HashFunction):
     def _compute_value(self):
         registers = map(self._to_bytes, self.registers)
         return Concatenation(registers).value()    
+    
+    @classmethod
+    def endianness(cls):
+        raise NotImplementedError    
 
     def _initialize_registers(self):
         raise NotImplementedError
