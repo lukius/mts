@@ -19,11 +19,11 @@ class Set4Challenge6(MatasanoChallenge):
 
     def validate(self):
         key = RandomByteGenerator().value(20)
-        sha1mac = MD4BasedMAC(key)
-        string_mac = sha1mac.value(self.STRING)
-        message, mac = MD4BasedMACMessageForger(sha1mac).\
+        md4mac = MD4BasedMAC(key)
+        string_mac = md4mac.value(self.STRING)
+        message, mac = MD4BasedMACMessageForger(md4mac).\
                        forge(self.STRING, string_mac, self.TARGET_STRING)
                        
         return message.startswith(self.STRING) and\
                message.endswith(self.TARGET_STRING) and\
-               sha1mac.validate(message, mac)
+               md4mac.validate(message, mac)
