@@ -1,7 +1,8 @@
-from common.attacks.mac import MDHashBasedMACMessageForger, ResumableMDHash
+from common.attacks.mac import MDHashBasedMACMessageForger
+from common.attacks.tools.hash import ResumableMDHash
 from common.challenge import MatasanoChallenge
 from common.hash.md4 import MD4
-from common.mac.md4 import MD4BasedMAC
+from common.mac.hash import HashBasedMAC
 from common.tools import RandomByteGenerator
 
 
@@ -19,7 +20,7 @@ class Set4Challenge6(MatasanoChallenge):
 
     def validate(self):
         key = RandomByteGenerator().value(20)
-        md4mac = MD4BasedMAC(key)
+        md4mac = HashBasedMAC(key, MD4)
         string_mac = md4mac.value(self.STRING)
         message, mac = MD4BasedMACMessageForger(md4mac).\
                        forge(self.STRING, string_mac, self.TARGET_STRING)

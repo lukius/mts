@@ -1,5 +1,6 @@
 from common.challenge import MatasanoChallenge
-from common.mac.sha1 import SHA1BasedMAC
+from common.hash.sha1 import SHA1
+from common.mac.hash import HashBasedMAC
 from common.tools import RandomByteGenerator
 
 
@@ -17,7 +18,7 @@ class Set4Challenge4(MatasanoChallenge):
 
     def validate(self):
         key = RandomByteGenerator().value()
-        sha1mac = SHA1BasedMAC(key)
+        sha1mac = HashBasedMAC(key, SHA1)
         valid_mac_ok = self._check_valid_mac(sha1mac)
         invalid_mac_ok = self._check_invalid_mac(sha1mac)
         return valid_mac_ok and invalid_mac_ok

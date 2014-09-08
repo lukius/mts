@@ -1,4 +1,8 @@
-from common.padders import MDPadder
+import httplib
+import time
+
+from common.converters import BytesToHex
+from common.padders import MDPadder, RightPadder
 
 
 class MDHashBasedMACMessageForger(object):
@@ -56,22 +60,51 @@ class MDHashBasedMACMessageForger(object):
         raise NotImplementedError
     
     
-class ResumableMDHash(object):
+class TimeLeakBasedHMACCracker(object):
     
-    def __init__(self, hash_function_class):
-        self.hash_function_class = hash_function_class
+    URL_TEMPLATE = '/test?file=foo&signature='
+    MAC_SIZE = 20
+    
+    def __init__(self, server):
+        self.server = server
+
+    def _make_request_for(self, hmac):
+        hex_hmac = BytesToHex(hmac).value()
+        connection = httplib.HTTPConnection(self.server.ADDRESS,
+                                            self.server.PORT)
+        connection.request('GET', self.URL_TEMPLATE + hex_hmac)
+        return connection.getresponse()
+    
+    def _measure_request_time_for(self, hmac):
+        start_time = time.time()
+        self._make_request_for(hmac)
+        end_time = time.time()
+        return end_time - start_time
+    
+    def _crack_byte(self, index, cracked_bytes):
+        if index == self.MAC_SIZE-1:
+            return self._crack_last_byte(cracked_bytes)
+        return self._crack_non_last_byte(index, cracked_bytes)
+    
+    def _crack_last_byte(self, cracked_bytes):
+        for byte in range(256):
+            char = chr(byte)
+            response = self._make_request_for(cracked_bytes + char)
+            if response.status == 200:
+                return char
         
-    def value(self):
-        class ResumableHash(self.hash_function_class):
-            def __init__(_self, registers):
-                self.hash_function_class.__init__(_self)
-                _self.custom_registers = registers
-                
-            def _initialize_registers(_self):
-                _self.registers = list(_self.custom_registers)
-                
-            def _pad_message(_self, message):
-                # Treat incoming messages as if they were already padded.
-                return message
-            
-        return ResumableHash
+    def _crack_non_last_byte(self, index, cracked_bytes):
+        byte_times = list()
+        for byte in range(256):
+            char = chr(byte)
+            target_hmac = RightPadder(cracked_bytes+char).value(self.MAC_SIZE)
+            measured_time = self._measure_request_time_for(target_hmac)
+            byte_times.append((char, measured_time))
+        return max(byte_times, key=lambda _tuple: _tuple[1])[0]
+        
+    def crack(self):
+        cracked_mac = str()
+        for byte_index in range(self.MAC_SIZE):
+            cracked_byte = self._crack_byte(byte_index, cracked_mac)
+            cracked_mac += cracked_byte
+        return cracked_mac
