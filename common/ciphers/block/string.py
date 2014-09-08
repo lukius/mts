@@ -12,9 +12,18 @@ class BlockString(object):
                            else BlockCipherMode.DEFAULT_BLOCK_SIZE
                           
     def _get_boundaries_for(self, index):
+        index = self._validate_and_adjust(index)
         start_index = index*self._block_size
         end_index = start_index + self._block_size
         return (start_index, end_index)
+    
+    def _validate_and_adjust(self, index):
+        block_count = self.block_count()
+        if index >= block_count or index < -block_count:
+            raise IndexError('block index out of range')
+        if index < 0:
+            index += block_count
+        return index        
     
     def is_last_block_index(self, i):
         return i == self.block_count()-1
@@ -27,11 +36,7 @@ class BlockString(object):
     
     def get_block(self, index):
         from tools import BlockRetriever
-        block_count = self.block_count()
-        if index >= block_count or index < -block_count:
-            raise IndexError('block index out of range')
-        if index < 0:
-            index += block_count
+        index = self._validate_and_adjust(index)
         return BlockRetriever(self.string, self._block_size).value(index)
     
     def remove_block(self, index):

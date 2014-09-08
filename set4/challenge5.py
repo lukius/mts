@@ -1,5 +1,4 @@
 from common.attacks.mac import MDHashBasedMACMessageForger
-from common.attacks.tools.hash import ResumableMDHash
 from common.challenge import MatasanoChallenge
 from common.hash.sha1 import SHA1
 from common.mac.hash import HashBasedMAC
@@ -8,8 +7,8 @@ from common.tools import RandomByteGenerator
 
 class SHA1BasedMACMessageForger(MDHashBasedMACMessageForger):
     
-    def _resumable_hash(self):
-        return ResumableMDHash(SHA1).value()
+    def _hash_function(self):
+        return SHA1
 
 
 class Set4Challenge5(MatasanoChallenge):

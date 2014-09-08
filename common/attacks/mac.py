@@ -1,6 +1,7 @@
 import httplib
 import time
 
+from common.attacks.tools.hash import ResumableMDHash
 from common.converters import BytesToHex
 from common.padders import MDPadder, RightPadder
 
@@ -57,6 +58,10 @@ class MDHashBasedMACMessageForger(object):
                 return message_to_forge, hash_value
     
     def _resumable_hash(self):
+        hash_function = self._hash_function()
+        return ResumableMDHash(hash_function).value()
+    
+    def _hash_function(self):
         raise NotImplementedError
     
     
@@ -67,6 +72,9 @@ class TimeLeakBasedHMACCracker(object):
     
     def __init__(self, server):
         self.server = server
+
+    def _pad(self, hmac):
+        return RightPadder(hmac).value(self.MAC_SIZE)
 
     def _make_request_for(self, hmac):
         hex_hmac = BytesToHex(hmac).value()
@@ -94,13 +102,16 @@ class TimeLeakBasedHMACCracker(object):
                 return char
         
     def _crack_non_last_byte(self, index, cracked_bytes):
-        byte_times = list()
+        byte_scores = list()
         for byte in range(256):
             char = chr(byte)
-            target_hmac = RightPadder(cracked_bytes+char).value(self.MAC_SIZE)
-            measured_time = self._measure_request_time_for(target_hmac)
-            byte_times.append((char, measured_time))
-        return max(byte_times, key=lambda _tuple: _tuple[1])[0]
+            target_hmac = self._pad(cracked_bytes+char)
+            score = self._compute_score_for(target_hmac)
+            byte_scores.append((char, score))
+        return max(byte_scores, key=lambda _tuple: _tuple[1])[0]
+    
+    def _compute_score_for(self, hmac):
+        return self._measure_request_time_for(hmac)
         
     def crack(self):
         cracked_mac = str()
