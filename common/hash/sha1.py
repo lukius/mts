@@ -1,4 +1,4 @@
-from common.endianness import BigEndian
+from common.tools.endianness import BigEndian
 from common.hash.md import MDHashFunction
 
 

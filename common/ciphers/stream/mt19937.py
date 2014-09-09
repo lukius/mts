@@ -1,6 +1,6 @@
 from common.ciphers import Cipher
 from common.random.mt19937 import MersenneTwister
-from common.xor import ByteXOR
+from common.tools.xor import ByteXOR
 
 
 class MersenneTwisterCipher(Cipher):

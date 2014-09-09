@@ -4,7 +4,7 @@ import threading
 import time
 import urlparse
 
-from common.converters import BytesToHex
+from common.tools.converters import BytesToHex
 
 
 class TimeLeakingWebServer(object):

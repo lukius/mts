@@ -1,6 +1,6 @@
 from common.challenge import MatasanoChallenge
 from common.ciphers.block.tools import ECBDecrypter, ECBEncryptionOracle
-from common.tools import RandomByteGenerator, AllEqual
+from common.tools.misc import RandomByteGenerator, AllEqual
 
 
 class ECBEncryptionOracleWithRandomPrefix(ECBEncryptionOracle):

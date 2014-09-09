@@ -2,7 +2,7 @@ from common.attacks.mac import TimeLeakBasedHMACCracker
 from common.challenge import MatasanoChallenge
 from common.hash.sha1 import SHA1
 from common.mac.hmac import HMAC
-from common.tools import RandomByteGenerator
+from common.tools.misc import RandomByteGenerator
 from common.attacks.tools.timeleak import TimeLeakingWebServer
 
 

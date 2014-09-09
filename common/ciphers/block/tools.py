@@ -1,8 +1,8 @@
 from modes import ECB, CBC
 from common.ciphers.block.aes import AES
 
-from common.base64 import Base64Decoder
-from common.tools import RandomByteGenerator, AllEqual
+from common.tools.base64 import Base64Decoder
+from common.tools.misc import RandomByteGenerator, AllEqual
 
 
 class ECB_CBCDetectionOracle(object):

@@ -1,8 +1,8 @@
-from common.base64 import Base64Decoder
+from common.tools.base64 import Base64Decoder
 from common.challenge import MatasanoChallenge
 from common.ciphers.block.aes import AES, RandomAccessAES
 from common.ciphers.block.modes import ECB
-from common.tools import RandomByteGenerator
+from common.tools.misc import RandomByteGenerator
         
 
 class RandomAccessAESDecrypter(object):

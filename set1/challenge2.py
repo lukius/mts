@@ -1,5 +1,5 @@
 from common.challenge import MatasanoChallenge
-from common.xor import HexXOR
+from common.tools.xor import HexXOR
 
 
 class Set1Challenge2(MatasanoChallenge):

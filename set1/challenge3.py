@@ -1,5 +1,5 @@
 from common.challenge import MatasanoChallenge
-from common.converters import HexToBytes
+from common.tools.converters import HexToBytes
 from common.attacks.xor import SingleByteXORDecrypter 
 
 

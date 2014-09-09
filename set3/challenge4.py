@@ -1,9 +1,9 @@
 from common.attacks.xor import RepeatingKeyXORDecrypter
-from common.base64 import Base64Decoder
+from common.tools.base64 import Base64Decoder
 from common.ciphers.block.aes import AES
 from common.ciphers.block.modes import CTR
 from common.challenge import MatasanoChallenge
-from common.tools import Concatenation, FileLines, RandomByteGenerator
+from common.tools.misc import Concatenation, FileLines, RandomByteGenerator
 
 
 class FixedNonceCTRDecrypter(object):

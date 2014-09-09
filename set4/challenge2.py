@@ -4,7 +4,7 @@ from common.attacks.bitflipping import BitFlippingAttack,\
                                        UserProfileGenerator, UserProfileParser
 from common.challenge import MatasanoChallenge
 from common.ciphers.block.modes import CTR
-from common.tools import RandomByteGenerator
+from common.tools.misc import RandomByteGenerator
 
 
 class CTRBitFlippingAttack(BitFlippingAttack):

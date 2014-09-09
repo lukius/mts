@@ -1,4 +1,4 @@
-from common.base64 import Base64Encoder
+from common.tools.base64 import Base64Encoder
 from common.challenge import MatasanoChallenge
 
 

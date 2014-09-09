@@ -1,7 +1,7 @@
-from common.converters import HexToBytes, IntToBinary, BinaryToHex,\
+from common.tools.converters import HexToBytes, IntToBinary, BinaryToHex,\
                               BytesToBinary, BinaryToBytes
-from common.padders import RightPadder, LeftPadder
-from common.tools import FileLines
+from common.tools.padders import RightPadder, LeftPadder
+from common.tools.misc import FileLines
 
 
 class Base64Encoder(object):

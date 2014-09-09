@@ -3,7 +3,7 @@ from Crypto.Cipher import AES as AESModule
 from common.ciphers.block import BlockCipher
 from common.ciphers.block.modes import RandomAccessCTR
 from common.ciphers.block.string import BlockString
-from common.xor import ByteXOR
+from common.tools.xor import ByteXOR
 
 
 class AES(BlockCipher):

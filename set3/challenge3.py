@@ -1,6 +1,6 @@
-from common.base64 import Base64Decoder
+from common.tools.base64 import Base64Decoder
 from common.challenge import MatasanoChallenge
-from common.tools import Concatenation
+from common.tools.misc import Concatenation
         
 
 class Set3Challenge3(MatasanoChallenge):

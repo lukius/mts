@@ -1,10 +1,10 @@
 import binascii
 import math
 
-from tools import Concatenation 
+from common.tools.misc import Concatenation 
 
-from common.endianness import BigEndian
-from common.padders import LeftPadder
+from common.tools.endianness import BigEndian
+from common.tools.padders import LeftPadder
 
 
 def _ensure_length_multiple_of(string, value):

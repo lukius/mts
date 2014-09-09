@@ -3,8 +3,8 @@ import random
 from common.challenge import MatasanoChallenge
 from common.ciphers.stream.mt19937 import MersenneTwisterCipher
 from common.random.mt19937 import MersenneTwister
-from common.tools import RandomByteGenerator
-from common.xor import ByteXOR
+from common.tools.misc import RandomByteGenerator
+from common.tools.xor import ByteXOR
 
 
 class CustomMersenneTwisterCipher(object):

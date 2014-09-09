@@ -2,13 +2,13 @@ class Endianness(object):
     
     @classmethod
     def from_int(cls, integer, size=None):
-        from converters import IntToBytes
+        from common.tools.converters import IntToBytes
         string = IntToBytes(integer).value(size)
         return cls(string)
     
     @classmethod
     def to_int(cls, string):
-        from common.converters import BytesToInt
+        from common.tools.converters import BytesToInt
         integer = BytesToInt(string, endianness=cls).value()
         return cls(integer)
     

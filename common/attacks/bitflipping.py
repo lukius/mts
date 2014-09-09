@@ -1,5 +1,5 @@
 from common.ciphers.block.aes import AES
-from common.xor import ByteXOR
+from common.tools.xor import ByteXOR
 
 
 class BitFlippingAttack(object):

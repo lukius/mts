@@ -1,6 +1,6 @@
 from common.challenge import MatasanoChallenge
-from common.padders import PKCS7Padder, PKCS7Unpadder 
-from common.padders import InvalidPaddingException       
+from common.tools.padders import PKCS7Padder, PKCS7Unpadder 
+from common.tools.padders import InvalidPaddingException       
 
 
 class Set2Challenge7(MatasanoChallenge):

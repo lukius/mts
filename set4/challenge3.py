@@ -3,8 +3,8 @@ from common.attacks.bitflipping import UserProfileGenerator,\
                                        InvalidProfileException
 from common.challenge import MatasanoChallenge
 from common.ciphers.block.modes import CBC
-from common.tools import RandomByteGenerator
-from common.xor import ByteXOR
+from common.tools.misc import RandomByteGenerator
+from common.tools.xor import ByteXOR
 
 
 class CBCKeyRecoveryAttack(object):

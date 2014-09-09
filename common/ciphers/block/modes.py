@@ -1,7 +1,7 @@
 from string import BlockString
 
-from common.padders import PKCS7Padder, PKCS7Unpadder
-from common.xor import ByteXOR
+from common.tools.padders import PKCS7Padder, PKCS7Unpadder
+from common.tools.xor import ByteXOR
 
 
 class BlockCipherMode(object):

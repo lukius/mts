@@ -1,7 +1,7 @@
 from common.ciphers.xor import XORCipher
-from common.tools import Concatenation, HammingDistance, Average
-from common.freq import EnglishFrequencyScorer
-from common.xor import ByteXOR
+from common.tools.misc import Concatenation, HammingDistance, Average
+from common.tools.freq import EnglishFrequencyScorer
+from common.tools.xor import ByteXOR
 
 
 class SingleByteXORDecrypter(object):

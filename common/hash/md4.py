@@ -1,4 +1,4 @@
-from common.endianness import LittleEndian
+from common.tools.endianness import LittleEndian
 from common.hash.md import MDHashFunction
 
 

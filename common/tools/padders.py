@@ -1,4 +1,4 @@
-from tools import AllEqual
+from common.tools.misc import AllEqual
 
 
 class Padder(object):

@@ -1,4 +1,4 @@
-from common.base64 import Base64Decoder
+from common.tools.base64 import Base64Decoder
 from common.challenge import MatasanoChallenge
 from common.attacks.xor import RepeatingKeyXORDecrypter
         

@@ -2,7 +2,7 @@ from common.attacks.mac import MDHashBasedMACMessageForger
 from common.challenge import MatasanoChallenge
 from common.hash.sha1 import SHA1
 from common.mac.hash import HashBasedMAC
-from common.tools import RandomByteGenerator
+from common.tools.misc import RandomByteGenerator
 
 
 class SHA1BasedMACMessageForger(MDHashBasedMACMessageForger):

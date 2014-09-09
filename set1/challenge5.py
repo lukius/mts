@@ -1,5 +1,5 @@
 from common.challenge import MatasanoChallenge
-from common.converters import BytesToHex
+from common.tools.converters import BytesToHex
 from common.ciphers.xor import XORCipher
 
 

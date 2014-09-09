@@ -2,8 +2,8 @@ import httplib
 import time
 
 from common.attacks.tools.hash import ResumableMDHash
-from common.converters import BytesToHex
-from common.padders import MDPadder, RightPadder
+from common.tools.converters import BytesToHex
+from common.tools.padders import MDPadder, RightPadder
 
 
 class MDHashBasedMACMessageForger(object):

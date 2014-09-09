@@ -1,6 +1,6 @@
 from common.hash import HashFunction
-from common.padders import MDPadder
-from common.tools import Concatenation
+from common.tools.padders import MDPadder
+from common.tools.misc import Concatenation
 
 
 class MDHashFunction(HashFunction):

@@ -1,6 +1,6 @@
 from common.mac import MessageAuthenticationCode
-from common.padders import RightPadder
-from common.xor import ByteXOR
+from common.tools.padders import RightPadder
+from common.tools.xor import ByteXOR
 
 
 class HMAC(MessageAuthenticationCode):

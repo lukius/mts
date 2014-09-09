@@ -1,7 +1,7 @@
 from math import ceil
 
-from common.converters import IntToBytes
-from common.tools import Concatenation
+from common.tools.converters import IntToBytes
+from common.tools.misc import Concatenation
 
 
 class MersenneTwister(object):

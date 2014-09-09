@@ -2,13 +2,13 @@ from common.attacks.mac import TimeLeakBasedHMACCracker
 from common.challenge import MatasanoChallenge
 from common.hash.sha1 import SHA1
 from common.mac.hmac import HMAC
-from common.tools import RandomByteGenerator, Average
+from common.tools.misc import RandomByteGenerator, Average
 from common.attacks.tools.timeleak import TimeLeakingWebServer
 
 
 class HMACCrackerForReducedTimeLeak(TimeLeakBasedHMACCracker):
     
-    REQUEST_ATTEMPTS = 100
+    REQUEST_ATTEMPTS = 50
     
     def _compute_score_for(self, hmac):
         times = [self._measure_request_time_for(hmac)\
@@ -20,7 +20,7 @@ class Set4Challenge8(MatasanoChallenge):
     
     STRING = 'foo bar baz'
     KEY = RandomByteGenerator().value(50)
-    TIMING_LEAK = 0.004
+    TIMING_LEAK = 0.003
     
     def __init__(self):
         MatasanoChallenge.__init__(self)

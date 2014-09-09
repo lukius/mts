@@ -1,6 +1,6 @@
 from common.challenge import MatasanoChallenge
-from common.converters import HexToBytes
-from common.tools import FileLines
+from common.tools.converters import HexToBytes
+from common.tools.misc import FileLines
 from common.attacks.xor import SingleByteXORDecrypter
 
 

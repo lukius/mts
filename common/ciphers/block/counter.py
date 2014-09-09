@@ -1,6 +1,6 @@
 from modes import CTR
 
-from common.endianness import LittleEndian
+from common.tools.endianness import LittleEndian
 
 
 class CTRModeCounter(object):

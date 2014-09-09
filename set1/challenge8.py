@@ -1,5 +1,5 @@
 from common.challenge import MatasanoChallenge
-from common.tools import FileLines
+from common.tools.misc import FileLines
 
 
 class ECBEncryptionFinder(object):

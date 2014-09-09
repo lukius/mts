@@ -1,10 +1,10 @@
 import random
 
-from common.base64 import Base64Decoder
+from common.tools.base64 import Base64Decoder
 from common.challenge import MatasanoChallenge
-from common.padders import InvalidPaddingException, PKCS7Unpadder
-from common.tools import RandomByteGenerator, FileLines
-from common.xor import ByteXOR
+from common.tools.padders import InvalidPaddingException, PKCS7Unpadder
+from common.tools.misc import RandomByteGenerator, FileLines
+from common.tools.xor import ByteXOR
 from common.ciphers.block.aes import AES
 from common.ciphers.block.modes import CBC
 

@@ -61,12 +61,12 @@ class HammingDistance(object):
     
     def __init__(self, string1, string2):
         if len(string1) != len(string2):
-            raise RuntimeError('strings must have equal length')        
+            raise RuntimeError('strings must have equal length') 
         self.string1 = string1
         self.string2 = string2
         
     def value(self):
-        from common.converters import BytesToBinary
+        from common.tools.converters import BytesToBinary
         bin_string1 = BytesToBinary(self.string1).value()
         bin_string2 = BytesToBinary(self.string2).value()
         pairs = zip(bin_string1, bin_string2)

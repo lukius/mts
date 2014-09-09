@@ -1,5 +1,5 @@
 from common.challenge import MatasanoChallenge
-from common.padders import PKCS7Padder
+from common.tools.padders import PKCS7Padder
 
 
 class Set2Challenge1(MatasanoChallenge):
