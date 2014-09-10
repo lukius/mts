@@ -39,19 +39,21 @@ class KeyExchangeProtocol(object):
         key = self.diffie_hellman.get_public_key()
         self._send(key)         
         
-    def _receive(self):
-        size_bytes = self.socket.recv(self.LENGTH_FIELD_SIZE)
+    def _receive(self, socket=None):
+        socket = socket if socket is not None else self.socket
+        size_bytes = socket.recv(self.LENGTH_FIELD_SIZE)
         size = BytesToInt(size_bytes).value()
-        return self.socket.recv(size)
+        return socket.recv(size)
     
-    def _receive_int(self):
-        integer = self._receive()
+    def _receive_int(self, socket=None):
+        integer = self._receive(socket)
         return int(integer)    
     
-    def _send(self, *values):
+    def _send(self, *values, **kwargs):
         message = Concatenation(map(str, values)).value()
         size_bytes = IntToBytes(len(message)).value(self.LENGTH_FIELD_SIZE)
-        self.socket.send(size_bytes + message)
+        socket = kwargs['socket'] if 'socket' in kwargs and kwargs['socket'] is not None else self.socket
+        socket.send(size_bytes + message)
         
     def get_status(self):
         return self.status
