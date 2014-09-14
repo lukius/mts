@@ -24,9 +24,9 @@ class SecureRemotePassword(KeyExchangeProtocol):
         self.modexp = ModularExp(self.p)
         self._init_state()
         
-    def _compute_u_from(self, A, B):
-        A_bytes = self._from_int(A)
-        B_bytes = self._from_int(B)
+    def _compute_u(self):
+        A_bytes = self._from_int(self.A)
+        B_bytes = self._from_int(self.B)
         hash_string = self.sha256.hash(A_bytes + B_bytes)
         return self._to_int(hash_string)
     
@@ -48,22 +48,19 @@ class SecureRemotePasswordClient(SecureRemotePassword, KeyExchangeProtocolClient
     
     def _init_state(self):
         self.a = random.randint(1, self.MAX_INT)
-    
-    def _send_A(self):
         self.A = self.modexp.value(self.G, self.a)
-        self._send(self.A)
-        
-    def _compute_S_from(self, B, x, u):
-        base = B - (self.K * self.modexp.value(self.G, x))
-        exponent = self.a + u*x
+    
+    def _compute_S_from(self, x):
+        base = self.B - (self.K * self.modexp.value(self.G, x))
+        exponent = self.a + self.u*x
         S = self.modexp.value(base, exponent)
         return self._from_int(S)
     
-    def _compute_key_from(self, B):
-        u = self._compute_u_from(self.A, B)
+    def _compute_key(self):
+        self.u = self._compute_u()
         hashed_password = self.sha256.hash(self.salt + self.password)
         integer = self._to_int(hashed_password)
-        S = self._compute_S_from(B, integer, u)
+        S = self._compute_S_from(integer)
         self._set_key_from(S)
     
     def _send_hash(self):
@@ -74,13 +71,16 @@ class SecureRemotePasswordClient(SecureRemotePassword, KeyExchangeProtocolClient
         message = self._receive()
         self.status = self.STATUS_OK if message == self.MESSAGE_OK\
                       else self.STATUS_ERROR
+                      
+    def _receive_parameters(self):
+        self.salt = self._receive()
+        self.B = self._receive_int()
     
     def _run(self):
         self._connect()
-        self._send_A()
-        self.salt = self._receive()
-        B = self._receive_int()
-        self._compute_key_from(B)
+        self._send(self.A)
+        self._receive_parameters()
+        self._compute_key()
         self._send_hash()
         self._receive_result()
 
@@ -102,9 +102,9 @@ class SecureRemotePasswordServer(SecureRemotePassword, KeyExchangeProtocolServer
         integer = self.modexp.value(self.G, self.b)
         return self.K*self.v + integer
     
-    def _send_validation_result(self, received_hmac):
+    def _send_validation_result(self):
         hmac = HMAC(self.key, SHA256).value(self.salt)
-        if hmac == received_hmac:
+        if hmac == self.received_hmac:
             result = self.MESSAGE_OK
             self.status = self.STATUS_OK
         else:
@@ -112,25 +112,25 @@ class SecureRemotePasswordServer(SecureRemotePassword, KeyExchangeProtocolServer
             self.status = self.STATUS_ERROR
         self._send(result)
     
-    def _send_salt_and_B(self):
+    def _send_parameters(self):
         self._send(self.salt)
         self.B = self._compute_B()
         self._send(self.B)
         
-    def _compute_S_from(self, A, u):
-        base = A * self.modexp.value(self.v, u)
+    def _compute_S_from(self, u):
+        base = self.A * self.modexp.value(self.v, u)
         S = self.modexp.value(base, self.b)
         return self._from_int(S)
         
-    def _compute_key_from(self, A):
-        u = self._compute_u_from(A, self.B)
-        S = self._compute_S_from(A, u)
+    def _compute_key(self):
+        u = self._compute_u()
+        S = self._compute_S_from(u)
         self._set_key_from(S)
     
     def _run(self):
         self._accept_connection()
-        A = self._receive_int()
-        self._send_salt_and_B()
-        self._compute_key_from(A)
-        hmac = self._receive()
-        self._send_validation_result(hmac)
+        self.A = self._receive_int()
+        self._send_parameters()
+        self._compute_key()
+        self.received_hmac = self._receive()
+        self._send_validation_result()

@@ -10,12 +10,12 @@ class SRPAuthBypassWithZeroKey(SecureRemotePasswordClient):
         # Initialize with empty email/password (we don't need them).
         SecureRemotePasswordClient.__init__(self, str(), str())
     
-    def _send_A(self):
-        # Sending any multiple of the underlying prime will have the same
-        # effect: the key computed by the server will be zero.
-        self._send(0)
+    def _init_state(self):
+        # Initializing A from any multiple of the underlying prime will have
+        # the same effect: the key computed by the server will be zero.
+        self.A = 0
         
-    def _compute_key_from(self, B):
+    def _compute_key(self):
         S = self._from_int(0) 
         self._set_key_from(S)
 
