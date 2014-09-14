@@ -1,8 +1,8 @@
 from common.attacks.key_exchange import KeyExchangeProtocolMITMAttack
 from common.challenge import MatasanoChallenge
-from common.key_exchange.protocol import KeyExchangeProtocolServer,\
-                                         KeyExchangeProtocolClient,\
-                                         KeyExchangeProtocol
+from common.key_exchange.protocols import KeyExchangeProtocol
+from common.key_exchange.protocols.toy import KeyExchangeToyProtocolServer,\
+                                              KeyExchangeToyProtocolClient
 
 
 class KeyExchangeMITMAttackWithCustomG(KeyExchangeProtocolMITMAttack):
@@ -94,9 +94,9 @@ class KeyExchangeMITMAttackWithGEqualsPMinus1(KeyExchangeMITMAttackWithCustomG):
 class Set5Challenge3(MatasanoChallenge):
     
     def _validate_attack(self, attack_class):
-        client = KeyExchangeProtocolClient()
+        client = KeyExchangeToyProtocolClient()
         attack = attack_class()
-        server = KeyExchangeProtocolServer()
+        server = KeyExchangeToyProtocolServer()
         
         server.start()
         client.start()
@@ -106,7 +106,7 @@ class Set5Challenge3(MatasanoChallenge):
         
         message = attack.get_message()
     
-        return message == KeyExchangeProtocolServer.MESSAGE and\
+        return message == KeyExchangeToyProtocolServer.MESSAGE and\
                client.get_status() == KeyExchangeProtocol.STATUS_OK and\
                server.get_status() == KeyExchangeProtocol.STATUS_OK 
 

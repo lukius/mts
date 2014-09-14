@@ -1,16 +1,16 @@
 import socket
 
-from common.key_exchange.protocol import KeyExchangeProtocol,\
-                                         KeyExchangeProtocolServer
+from common.key_exchange.protocols.toy import KeyExchangeToyProtocol,\
+                                              KeyExchangeToyProtocolServer
 
 
-class KeyExchangeProtocolMITMAttack(KeyExchangeProtocol):
+class KeyExchangeProtocolMITMAttack(KeyExchangeToyProtocol):
     
-    SERVER_ADDRESS = KeyExchangeProtocolServer.ADDRESS
-    SERVER_PORT = KeyExchangeProtocolServer.PORT
+    SERVER_ADDRESS = KeyExchangeToyProtocolServer.ADDRESS
+    SERVER_PORT = KeyExchangeToyProtocolServer.PORT
     
     def __init__(self):
-        KeyExchangeProtocol.__init__(self)
+        KeyExchangeToyProtocol.__init__(self)
         self.client_socket = socket.socket()
         self._init_server_socket()
         self.start()
@@ -19,7 +19,7 @@ class KeyExchangeProtocolMITMAttack(KeyExchangeProtocol):
         self.server_socket = socket.socket()
         self.server_socket.bind((self.SERVER_ADDRESS, self.SERVER_PORT))
         self.server_socket.listen(1)
-        KeyExchangeProtocolServer.PORT += 1
+        KeyExchangeToyProtocolServer.PORT += 1
 
     def get_message(self):
         return self.message
@@ -58,7 +58,7 @@ class KeyExchangeProtocolMITMAttack(KeyExchangeProtocol):
         return self.cipher.decrypt(message, mode=self.cipher_mode).bytes()
     
     def stop(self):
-        KeyExchangeProtocolServer.PORT -= 1
+        KeyExchangeToyProtocolServer.PORT -= 1
         
     def _run(self):
         self._wait_for_client_and_connect()

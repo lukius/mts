@@ -10,6 +10,7 @@ class DiffieHellman(object):
     def __init__(self, p, g):
         self.p = p
         self.g = g
+        self.modexp = ModularExp(self.p)
         self.exp = self._choose_secret_exponent()
         self.public_key = self._compute_public_key()
         
@@ -17,10 +18,10 @@ class DiffieHellman(object):
         return random.randint(1, self.MAX_INT)
     
     def _compute_public_key(self):
-        return ModularExp(self.g, self.exp).value(self.p)
+        return self.modexp.value(self.g, self.exp)
         
     def get_public_key(self):
         return self.public_key
     
     def get_secret_from(self, key):
-        return ModularExp(key, self.exp).value(self.p)
+        return self.modexp.value(key, self.exp)
