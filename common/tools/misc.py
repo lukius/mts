@@ -32,6 +32,15 @@ class Average(object):
         length = len(self.values)
         return sum(self.values)/float(length)
     
+    
+class Product(object):
+    
+    def __init__(self, values):
+        self.values = values
+        
+    def value(self, identity=1):
+        return reduce(lambda a,b: a*b, self.values, identity)
+    
 
 class RandomByteGenerator(object):
     

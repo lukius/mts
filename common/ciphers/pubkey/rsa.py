@@ -13,10 +13,14 @@ class RSA(PublicKeyCipher):
         PublicKeyCipher.__init__(self)
         self._init_parameters()
         
-    def _init_parameters(self):
+    def _init_primes(self):
         prime_generator = RandPrime()
         p = prime_generator.value()
         q = prime_generator.value()
+        return p, q
+        
+    def _init_parameters(self):
+        p, q = self._init_primes()
         totient = (p-1)*(q-1)
         self.n = p*q
         self.modexp = ModularExp(self.n)
@@ -40,3 +44,21 @@ class RSA(PublicKeyCipher):
     
     def _exp_with(self, integer, exponent):
         return self.modexp.value(integer, exponent)
+    
+    
+class FixedERSA(RSA):
+    
+    def __init__(self, e):
+        self.e = e
+        RSA.__init__(self)
+    
+    def _choose_e_from(self, totient):
+        return self.e
+    
+    def _init_primes(self):
+        gcd = GCD()
+        while True:
+            p, q = RSA._init_primes(self)
+            totient = (p-1)*(q-1)
+            if gcd.value(self.e, totient) == 1:
+                return p, q
