@@ -9,6 +9,10 @@ class MD4(MDHashFunction):
     B = 0xefcdab89
     C = 0x98badcfe
     D = 0x10325476
+    
+    @classmethod
+    def get_OID(cls):
+        return '\x06\x08\x2a\x86\x48\x86\xf7\x0d\x02\x04'
 
     @classmethod
     def endianness(cls):

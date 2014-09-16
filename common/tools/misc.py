@@ -2,6 +2,8 @@ from __future__ import absolute_import
 
 import random
 
+from math import log, floor, ceil
+
 
 class Concatenation(object):
     
@@ -21,6 +23,16 @@ class FileLines(object):
         
     def value(self):
         return open(self.filename, 'r').read().splitlines()
+    
+    
+class ByteSize(object):
+    
+    def __init__(self, integer):
+        self.integer = integer
+        
+    def value(self):
+        bit_size = 1 + floor(log(self.integer, 2))
+        return int(ceil(bit_size/8))
 
 
 class Average(object):

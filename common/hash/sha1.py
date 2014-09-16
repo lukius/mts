@@ -11,6 +11,11 @@ class SHA1(MDHashFunction):
     H3 = 0x10325476
     H4 = 0xc3d2e1f0
     
+    
+    @classmethod
+    def get_OID(cls):
+        return '\x06\x05\x2b\x0e\x03\x02\x1a'
+    
     @classmethod
     def endianness(cls):
         return BigEndian    
