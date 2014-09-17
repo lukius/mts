@@ -39,7 +39,7 @@ class EEquals3RSASignatureForger(object):
         next_power = (root+1)**self.e
         candidate_block = self._to_bytes(next_power)
         return root+1, LeftPadder(candidate_block).value(self.n_size,
-                                                         char='\0')
+                                                         char='\x00')
     
     def forge(self, string):
         pad_size = self.INITIAL_PAD_SIZE
@@ -49,7 +49,7 @@ class EEquals3RSASignatureForger(object):
             # 0x00 0x01 0xff ... 0xff 0x00 ASN.1_INFO HASH_DIGEST 
             block = self._get_signature_block(pad_size, string)
             if len(block) > self.n_size:
-                raise RuntimeError('failed find a valid signature')
+                raise RuntimeError('failed to find a valid signature')
             # Get a candidate block and then check if it is suitable.
             # A candidate block is built taking the eth root r of the current
             # block and getting the bytes out of (r+1)**e. If its prefix
