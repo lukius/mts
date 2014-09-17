@@ -81,7 +81,7 @@ class InsecurePKCS1_15DigitalSignature(PKCS1_15DigitalSignature):
         return block[start_index:start_index+20]
     
     def verify(self, message, signature):
-        message_hash = self._hash(message)
+        message_hash = self.hash_function.hash(message)
         block = self._decrypt(signature)
         hash_from_signature = self._get_hash_from(block)
         return message_hash == hash_from_signature

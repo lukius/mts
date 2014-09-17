@@ -1,5 +1,7 @@
 import struct
 
+from common.tools.converters import BytesToInt
+
 
 class HashFunction(object):
     
@@ -10,3 +12,7 @@ class HashFunction(object):
     
     def hash(self, message):
         raise NotImplementedError
+    
+    def int_hash(self, message):
+        hash_bytes = self.hash(message)
+        return BytesToInt(hash_bytes).value()

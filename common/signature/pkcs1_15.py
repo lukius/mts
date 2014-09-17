@@ -20,16 +20,13 @@ class PKCS1_15DigitalSignature(DigitalSignatureScheme):
     def _RSA(self):
         return RSA()
         
-    def _hash(self, message):
-        return self.hash_function.hash(message)
-    
     def _decrypt(self, signature):
         decrypted_block = self.rsa.encrypt(signature)
         return LeftPadder(decrypted_block).value(self.n_size, char='\0')
     
     def _encode(self, message):
         hash_oid = self.hash_function.get_OID()
-        digest = self._hash(message)
+        digest = self.hash_function.hash(message)
         der_digest = DerOctetString(digest).encode()
         der_null = DerNull().encode()
         der_sequence = DerSequence([hash_oid, der_null]).encode()
