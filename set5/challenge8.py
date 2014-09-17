@@ -27,6 +27,8 @@ class RSABroadcastAttack(object):
                 for i in range(len(self.moduli))]
         
     def _compute_CRT_result_from(self, ciphertexts, products, inverses):
+        # TODO: implement resolution of systems of linear congruences through
+        # CRT.
         moduli_product = Product(self.moduli).value()
         result = sum([ciphertexts[i] * products[i] * inverses[i]\
                       for i in range(self.n)])

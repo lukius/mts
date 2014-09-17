@@ -12,13 +12,20 @@ class PKCS1_15DigitalSignature(DigitalSignatureScheme):
     def __init__(self, hash_function=SHA1):
         DigitalSignatureScheme.__init__(self)
         self.hash_function = hash_function()
-        self.rsa = RSA()
+        self.rsa = self._RSA()
         self.public_key = self.rsa.get_public_key()
         self.e, self.n = self.public_key
         self.n_size = ByteSize(self.n).value()
         
+    def _RSA(self):
+        return RSA()
+        
     def _hash(self, message):
         return self.hash_function.hash(message)
+    
+    def _decrypt(self, signature):
+        decrypted_block = self.rsa.encrypt(signature)
+        return LeftPadder(decrypted_block).value(self.n_size, char='\0')
     
     def _encode(self, message):
         hash_oid = self.hash_function.get_OID()
@@ -38,8 +45,5 @@ class PKCS1_15DigitalSignature(DigitalSignatureScheme):
     
     def verify(self, message, signature):
         encoded_message = self._encode(message)
-        decrypted_digest = self.rsa.encrypt(signature)
-        decrypted_digest = LeftPadder(decrypted_digest).value(self.n_size,
-                                                              char='\0')
-        return encoded_message == decrypted_digest
-        
+        block = self._decrypt(signature)
+        return encoded_message == block
