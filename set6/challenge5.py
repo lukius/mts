@@ -8,7 +8,8 @@ class DSAMagicSignature(object):
     
     def value(self, dsa):
         # z should be chosen s.t. it has modular inverse mod q. 
-        # A small prime will be enough.
+        # Any integer < q is coprime with q (since q is prime).
+        # Thus, any integer will have inverse.
         z = 11
         p, q, _, y = dsa.get_public_key()
         
