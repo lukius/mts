@@ -11,18 +11,34 @@ class RSAParityOracleDecrypter(object):
         self.oracle = oracle
         self.e, self.n = oracle.get_public_key()
         
+    def _multiply(self, a, b):
+        return (a*b) % self.n
+        
     def decrypt(self, ciphertext):
         int_ciphertext = BytesToInt(ciphertext).value()
+        # Invariant: the plaintext is in the interval
+        # [lower_limit, upper_limit]
         lower_limit = 0
         upper_limit = self.n-1
-        two = ModularExp(self.n).value(2, self.e)
+        two_i = two = ModularExp(self.n).value(2, self.e)
+        
         while lower_limit < upper_limit:
             mid = (lower_limit+upper_limit)/2
-            int_ciphertext = (int_ciphertext*two) % self.n
-            if self.oracle.is_plaintext_even(int_ciphertext):
+            mid_ciphertext = ModularExp(self.n).value(mid, self.e)
+            mid_ciphertext = self._multiply(mid_ciphertext, two_i)
+            target_ciphertext = self._multiply(int_ciphertext, two_i)
+            if self.oracle.is_plaintext_even(target_ciphertext):
                 upper_limit = mid
+                # Adjust new upper limit if it violates the invariant.
+                if not self.oracle.is_plaintext_even(mid_ciphertext):
+                    upper_limit -= 1
             else:
-                lower_limit = mid+1
+                lower_limit = mid
+                # Same as before.
+                if self.oracle.is_plaintext_even(mid_ciphertext):
+                    lower_limit += 1
+            two_i = (two_i*two) % self.n
+            
         return IntToBytes(lower_limit).value()
 
 
