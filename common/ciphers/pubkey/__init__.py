@@ -12,13 +12,26 @@ class PublicKeyCipher(Cipher):
     
     def decrypt(self, ciphertext):
         return self._process_with(ciphertext, self._decrypt)
+    
+    def int_encrypt(self, plaintext):
+        return self._apply_method(plaintext, self._encrypt)
+    
+    def int_decrypt(self, ciphertext):
+        return self._apply_method(ciphertext, self._decrypt)
         
     def _process_with(self, text, method):
-        # Convert text to integer before encryption/decryption.
-        integer = self._to_int(text)
-        result = method(integer)
-        # And convert back to byte string before returning.
+        result = self._apply_method(text, method)
+        # Convert to byte string before returning.
         return self._from_int(result)
+    
+    def _apply_method(self, method_input, method):
+        input_type = type(method_input)
+        if input_type == str:
+            # Convert text to integer before encryption/decryption.
+            method_input = self._to_int(method_input)
+        elif input_type not in [int, long]:
+            raise RuntimeError('invalid cipher input')
+        return method(method_input)
     
     def _to_int(self, byte_string):
         return BytesToInt(byte_string).value()
