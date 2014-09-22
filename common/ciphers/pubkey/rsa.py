@@ -8,19 +8,21 @@ from common.math.prime import RandPrime
 class RSA(PublicKeyCipher):
     
     DEFAULT_E = 65537
+    DEFAULT_BITS = 2048
     
-    def __init__(self):
+    def __init__(self, bits=None):
         PublicKeyCipher.__init__(self)
-        self._init_parameters()
+        bits = bits if bits is not None else self.DEFAULT_BITS
+        self._init_parameters(bits)
         
-    def _init_primes(self):
+    def _init_primes(self, bits):
         prime_generator = RandPrime()
-        p = prime_generator.value()
-        q = prime_generator.value()
+        p = prime_generator.value(n=bits/2)
+        q = prime_generator.value(n=bits/2)
         return p, q
         
-    def _init_parameters(self):
-        p, q = self._init_primes()
+    def _init_parameters(self, bits):
+        p, q = self._init_primes(bits)
         totient = (p-1)*(q-1)
         self.n = p*q
         self.modexp = ModularExp(self.n)
@@ -55,10 +57,10 @@ class FixedERSA(RSA):
     def _choose_e_from(self, totient):
         return self.e
     
-    def _init_primes(self):
+    def _init_primes(self, bits):
         gcd = GCD()
         while True:
-            p, q = RSA._init_primes(self)
+            p, q = RSA._init_primes(self, bits)
             totient = (p-1)*(q-1)
             if gcd.value(self.e, totient) == 1:
                 return p, q

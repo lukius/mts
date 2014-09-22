@@ -1,4 +1,4 @@
-from common.tools.misc import AllEqual
+from common.tools.misc import AllEqual, RandomByteGenerator
 
 
 class Padder(object):
@@ -61,6 +61,35 @@ class PKCS7Unpadder(object):
         if not all_equal:
             raise InvalidPaddingException
         return self.string[:-pad_size]
+
+
+class PKCS1_5Padder(Padder):
+
+    def _build_padding(self, size):
+        byte_generator = RandomByteGenerator()
+        padding = byte_generator.value(size)
+        return padding.replace('\x00', byte_generator.value(1))
+    
+    def value(self, size):
+        data_length = len(self.string)
+        if data_length > size - 11:
+            raise RuntimeError('data too long to PKCS1.5-pad it')
+        padding_length = size - 3 - data_length
+        padding = self._build_padding(padding_length)
+        return '\x00\x02%s\x00%s' % (padding, self.string)
+
+
+class PKCS1_5Unpadder(object):
+    
+    def __init__(self, size):
+        self.size = size
+
+    def value(self, string):
+        string = LeftPadder(self.string).value(self.size, char='\0')
+        zero_index = string[2:].find('\x00')
+        if string[0] != '\x00' or string[1] != '\x02' or zero_index < 0:
+            raise InvalidPaddingException
+        return string[3+zero_index:]
 
 
 class FixedCharPadder(Padder):

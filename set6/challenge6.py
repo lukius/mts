@@ -1,32 +1,25 @@
+from common.attacks.rsa import RSAOracleAttack, RSAOracle
 from common.challenge import MatasanoChallenge
 from common.ciphers.pubkey.rsa import RSA
-from common.math.modexp import ModularExp
 from common.tools.base64 import Base64Decoder
-from common.tools.converters import BytesToInt, IntToBytes
 
 
-class RSAParityOracleDecrypter(object):
+class RSAParityOracleDecrypter(RSAOracleAttack):
     
-    def __init__(self, oracle):
-        self.oracle = oracle
-        self.e, self.n = oracle.get_public_key()
-        
-    def _multiply(self, a, b):
-        return (a*b) % self.n
-        
-    def decrypt(self, ciphertext):
-        int_ciphertext = BytesToInt(ciphertext).value()
+    def _decrypt(self, int_ciphertext):
         # Invariant: the plaintext is in the interval
         # [lower_limit, upper_limit]
         lower_limit = 0
         upper_limit = self.n-1
-        two_i = two = ModularExp(self.n).value(2, self.e)
+        # two_i equals 2**i for i = 1,...,ceil(log_2 int_ciphertext)
+        two_i = 2
         
         while lower_limit < upper_limit:
             mid = (lower_limit+upper_limit)/2
-            mid_ciphertext = ModularExp(self.n).value(mid, self.e)
-            mid_ciphertext = self._multiply(mid_ciphertext, two_i)
-            target_ciphertext = self._multiply(int_ciphertext, two_i)
+            mid_ciphertext = self._build_ciphertext_from_plaintexts(mid,
+                                                                    two_i) 
+            target_ciphertext = self._build_ciphertext_from(int_ciphertext,
+                                                            two_i)
             if self.oracle.is_plaintext_even(target_ciphertext):
                 upper_limit = mid
                 # Adjust new upper limit if it violates the invariant.
@@ -37,18 +30,12 @@ class RSAParityOracleDecrypter(object):
                 # Same as before.
                 if self.oracle.is_plaintext_even(mid_ciphertext):
                     lower_limit += 1
-            two_i = (two_i*two) % self.n
+            two_i *= 2
             
-        return IntToBytes(lower_limit).value()
+        return lower_limit
 
 
-class RSAParityOracle(object):
-    
-    def __init__(self, rsa):
-        self.rsa = rsa
-        
-    def get_public_key(self):
-        return self.rsa.get_public_key()
+class RSAParityOracle(RSAOracle):
     
     def is_plaintext_even(self, ciphertext):
         int_plaintext = self.rsa.int_decrypt(ciphertext)
@@ -68,7 +55,7 @@ class Set6Challenge6(MatasanoChallenge):
         return self.plaintext
 
     def value(self):
-        rsa = RSA()
+        rsa = RSA(bits=1024)
         oracle = RSAParityOracle(rsa)
         ciphertext = rsa.encrypt(self.plaintext)
         return RSAParityOracleDecrypter(oracle).decrypt(ciphertext)
