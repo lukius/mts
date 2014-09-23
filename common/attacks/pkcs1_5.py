@@ -114,7 +114,7 @@ class PKCS1_5PaddingOracleAttack(RSAOracleAttack):
     
     def decrypt(self, ciphertext):
         plaintext = RSAOracleAttack.decrypt(self, ciphertext)
-        return PKCS1_5Unpadder(plaintext).value()
+        return PKCS1_5Unpadder(self.n_size).value(plaintext)
 
 
 class PaddingOracleIntervalSet(object):
