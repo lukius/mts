@@ -9,14 +9,12 @@ class Set6Challenge8(MatasanoChallenge):
     
     STRING = 'Pochoclin!'
     
-    def __init__(self):
-        self.padded_string = PKCS1_5Padder(self.STRING).value(size=32)
-    
     def expected_value(self):
-        return self.padded_string
+        return self.STRING
 
     def value(self):
         rsa = RSA(bits=768)
         oracle = PKCS1_5PaddingOracle(rsa)
-        ciphertext = rsa.encrypt(self.padded_string)
+        padded_string = PKCS1_5Padder(self.STRING).value(size=32)
+        ciphertext = rsa.encrypt(padded_string)
         return PKCS1_5PaddingOracleAttack(oracle).decrypt(ciphertext)

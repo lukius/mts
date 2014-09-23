@@ -1,5 +1,5 @@
 from common.attacks.rsa import RSAOracle, RSAOracleAttack
-from common.tools.padders import LeftPadder
+from common.tools.padders import LeftPadder, PKCS1_5Unpadder
 from common.tools.misc import ByteSize
 
 
@@ -38,8 +38,13 @@ class PKCS1_5PaddingOracleAttack(RSAOracleAttack):
     
     def _search_s_from(self, lower_bound, c):
         s = lower_bound
+        i = 1
+        lim = 100000
         while not self._s_works(c, s):
             s += 1
+            if i % lim == 0:
+                s *= 2
+            i += 1
         return s
             
     def _search_s_with_one_interval(self, c, s, a, b):
@@ -49,9 +54,11 @@ class PKCS1_5PaddingOracleAttack(RSAOracleAttack):
         while True:
             low_s = (2*self.B + r*self.n) / b
             high_s = (3*self.B + r*self.n) / a
-            for new_s in range(low_s, high_s):
+            new_s = low_s
+            while new_s < high_s:
                 if self._s_works(c, new_s):
                     return new_s
+                new_s += 1
             if i % lim == 0:
                 r *= 2
             r += 1
@@ -81,7 +88,8 @@ class PKCS1_5PaddingOracleAttack(RSAOracleAttack):
             a, b = interval.low(), interval.high()
             low_r = (a*s - 3*self.B + 1) / self.n
             high_r = (b*s - 2*self.B) / self.n
-            for r in range(low_r, high_r+1):
+            r = low_r
+            while r <= high_r:
                 low = self._divide_and_round_up(2*self.B + r*self.n, s)
                 interval_low = max(a, low)
                 high = (3*self.B - 1 + r*self.n) / s
@@ -90,9 +98,11 @@ class PKCS1_5PaddingOracleAttack(RSAOracleAttack):
                     interval = PaddingOracleInterval(interval_low,
                                                      interval_high)
                     new_M.add(interval)
+                r += 1
         return new_M
         
     def _decrypt(self, c):
+        # Called from decrypt template method (superclass)
         M = self._init_M()
         s = self._search_s_from(self.n/(3*self.B), c)
         while True:
@@ -101,6 +111,10 @@ class PKCS1_5PaddingOracleAttack(RSAOracleAttack):
                 break
             s = self._find_next_s(M, c, s)
         return M[0].low()
+    
+    def decrypt(self, ciphertext):
+        plaintext = RSAOracleAttack.decrypt(self, ciphertext)
+        return PKCS1_5Unpadder(plaintext).value()
 
 
 class PaddingOracleIntervalSet(object):
