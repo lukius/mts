@@ -38,19 +38,12 @@ class PKCS1_5PaddingOracleAttack(RSAOracleAttack):
     
     def _search_s_from(self, lower_bound, c):
         s = lower_bound
-        i = 1
-        lim = 100000
         while not self._s_works(c, s):
             s += 1
-            if i % lim == 0:
-                s *= 2
-            i += 1
         return s
             
     def _search_s_with_one_interval(self, c, s, a, b):
         r = (2*(b*s - 2*self.B)) / self.n
-        i = 1
-        lim = 10000
         while True:
             low_s = (2*self.B + r*self.n) / b
             high_s = (3*self.B + r*self.n) / a
@@ -59,10 +52,7 @@ class PKCS1_5PaddingOracleAttack(RSAOracleAttack):
                 if self._s_works(c, new_s):
                     return new_s
                 new_s += 1
-            if i % lim == 0:
-                r *= 2
             r += 1
-            i += 1
             
     def _find_next_s(self, M, c, s):
         if len(M) > 1:
