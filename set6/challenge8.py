@@ -12,10 +12,18 @@ class Set6Challenge8(MatasanoChallenge):
     
     def expected_value(self):
         return self.STRING
+    
+    def _decrypt(self, ciphertext, oracle):
+        # See comment on Set6Challenge7. 
+        try:
+            plaintext = PKCS1_5PaddingOracleAttack(oracle).decrypt(ciphertext)
+        except Exception:
+            plaintext = None
+        return plaintext    
 
     def value(self):
         rsa = RSA(bits=self.RSA_BITS)
         oracle = PKCS1_5PaddingOracle(rsa)
         padded_string = PKCS1_5Padder(self.STRING).value(size=self.RSA_BITS/8)
         ciphertext = rsa.encrypt(padded_string)
-        return PKCS1_5PaddingOracleAttack(oracle).decrypt(ciphertext)
+        return self._decrypt(ciphertext, oracle)

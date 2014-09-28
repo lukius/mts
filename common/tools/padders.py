@@ -85,7 +85,7 @@ class PKCS1_5Unpadder(object):
         self.size = size
 
     def value(self, string):
-        string = LeftPadder(self.string).value(self.size, char='\0')
+        string = LeftPadder(string).value(self.size, char='\0')
         zero_index = string[2:].find('\x00')
         if string[0] != '\x00' or string[1] != '\x02' or zero_index < 0:
             raise InvalidPaddingException

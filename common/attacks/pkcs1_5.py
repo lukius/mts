@@ -17,11 +17,14 @@ class PKCS1_5PaddingOracle(RSAOracle):
 
 
 class PKCS1_5PaddingOracleAttack(RSAOracleAttack):
+
+    # Implementation of Bleinchenbacher's adaptive chosen-ciphertext
+    # attack against PKCS1.5-padded RSA (a.k.a. "million message" attack).
     
     def __init__(self, oracle):
         RSAOracleAttack.__init__(self, oracle)
-        k = ByteSize(self.n).value()
-        self.B = 2**(8*(k-2))
+        self.k = ByteSize(self.n).value()
+        self.B = 2**(8*(self.k-2))
     
     def _init_M(self):
         interval = PaddingOracleInterval(2*self.B, 3*self.B-1)
@@ -41,18 +44,41 @@ class PKCS1_5PaddingOracleAttack(RSAOracleAttack):
         while not self._s_works(c, s):
             s += 1
         return s
+    
+    def _search_s_for_r(self, c, r, a, b):
+        # Every lim unsuccessful iterations, increase current s value by a
+        # constant factor. Backing off exponentially, as it is done for r
+        # values below, might make s too high, which in turn stops the loop
+        # too soon.
+        i = 1        
+        lim = 1000
+        low_s = (2*self.B + r*self.n) / b
+        high_s = (3*self.B + r*self.n) / a
+        new_s = low_s
+        while new_s < high_s:
+            if self._s_works(c, new_s):
+                return new_s
+            if i % lim == 0:
+                new_s += 100000
+            new_s += 1
+            i += 1
+        return None
             
     def _search_s_with_one_interval(self, c, s, a, b):
+        # Every lim unsuccessful iterations, back off r. A small value proved
+        # to be satisfactory. Larger values will usually make the algorithm
+        # run for very long periods of time.
+        i = 1 
+        lim = 100
         r = (2*(b*s - 2*self.B)) / self.n
         while True:
-            low_s = (2*self.B + r*self.n) / b
-            high_s = (3*self.B + r*self.n) / a
-            new_s = low_s
-            while new_s < high_s:
-                if self._s_works(c, new_s):
-                    return new_s
-                new_s += 1
+            new_s = self._search_s_for_r(c, r, a, b)
+            if new_s is not None:
+                return new_s
+            if i % lim == 0:
+                r *= 2
             r += 1
+            i += 1
             
     def _find_next_s(self, M, c, s):
         if len(M) > 1:
@@ -104,7 +130,7 @@ class PKCS1_5PaddingOracleAttack(RSAOracleAttack):
     
     def decrypt(self, ciphertext):
         plaintext = RSAOracleAttack.decrypt(self, ciphertext)
-        return PKCS1_5Unpadder(self.n_size).value(plaintext)
+        return PKCS1_5Unpadder(self.k).value(plaintext)
 
 
 class PaddingOracleIntervalSet(object):

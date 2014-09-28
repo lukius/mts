@@ -12,10 +12,22 @@ class Set6Challenge7(MatasanoChallenge):
     
     def expected_value(self):
         return self.STRING
+    
+    def _decrypt(self, ciphertext, oracle):
+        # The attack might fail occasionally. I think it is due to how RSA
+        # chooses its underlying prime factors of the modulus n: if the prime
+        # number generator yields a non-prime number (it is probabilistic,
+        # after all), then the computed totient will be nonsense and thus all
+        # the math gets screwed. 
+        try:
+            plaintext = PKCS1_5PaddingOracleAttack(oracle).decrypt(ciphertext)
+        except Exception:
+            plaintext = None
+        return plaintext
 
     def value(self):
         rsa = RSA(bits=self.RSA_BITS)
         oracle = PKCS1_5PaddingOracle(rsa)
         padded_string = PKCS1_5Padder(self.STRING).value(size=self.RSA_BITS/8)
         ciphertext = rsa.encrypt(padded_string)
-        return PKCS1_5PaddingOracleAttack(oracle).decrypt(ciphertext)
+        return self._decrypt(ciphertext, oracle)

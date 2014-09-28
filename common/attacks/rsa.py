@@ -26,7 +26,6 @@ class RSAOracleAttack(object):
     def decrypt(self, ciphertext):
         int_ciphertext = BytesToInt(ciphertext).value()
         int_plaintext = self._decrypt(int_ciphertext)
-        print 'res:', int_plaintext
         return IntToBytes(int_plaintext).value()
     
     def _decrypt(self, int_ciphertext):
