@@ -37,11 +37,10 @@ class PKCS7Padder(Padder):
     
     def value(self, size):
         length = len(self.string)
-        if length % size == 0:
-            string = self.string + chr(size)*size
-        elif length < size:
-            pad_size = size - length
-            string = RightPadder(self.string).value(size, char=chr(pad_size))
+        quotient, remaining_bytes = divmod(length, size)
+        pad_size = size - remaining_bytes
+        string = RightPadder(self.string).value(size*(quotient+1),
+                                                    char=chr(pad_size))
         return string
 
 

@@ -53,7 +53,7 @@ class Runner(object):
     
     SET_PLACEHOLDER = 'set%s'
     CHALLENGE_PLACEHOLDER = 'challenge%s'
-    MAX_SETS = 6
+    MAX_SETS = 8
     MAX_CHALLENGES = 8
     ALL_SETS = list(range(MAX_SETS+1))
     ALL_CHALLENGES = list(range(MAX_CHALLENGES+1))

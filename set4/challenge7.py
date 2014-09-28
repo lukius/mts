@@ -10,7 +10,7 @@ class Set4Challenge7(MatasanoChallenge):
     
     STRING = 'foo bar baz'
     KEY = RandomByteGenerator().value(50)
-    TIMING_LEAK = 0.015
+    TIMING_LEAK = 0.025
     
     def __init__(self):
         MatasanoChallenge.__init__(self)
