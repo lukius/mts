@@ -32,7 +32,7 @@ class Set7Challenge2(MatasanoChallenge):
         return self.hash_function.hash(self.SNIPPET)
     
     def value(self):
-        # This was found "by hand", using the idea exploted in the previous
+        # This was found "by hand", using the idea explored in the previous
         # challenge: concatenate our target snippet with the original one, 
         # and use the latter MAC code as the final MAC code of the whole 
         # message. Thus, the crafted code snippet will look like:
