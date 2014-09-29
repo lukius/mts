@@ -5,15 +5,21 @@ from common.tools.misc import Concatenation
 
 class MDHashFunction(HashFunction):
     
+    @classmethod
+    def bits(cls):
+        return 32
+    
     def __init__(self):
         HashFunction.__init__(self)
-        self.mask = 0xffffffff
+        self.mask = (1 << self.bits()) - 1
         
     def _to_bytes(self, integer):
-        return self.endianness().from_int(integer, size=4).value()        
+        byte_size = self.bits()/8
+        return self.endianness().from_int(integer, size=byte_size).value()        
     
     def _rotate_left(self, integer, count):
-        return ((integer << count) | (integer >> (32 - count))) & self.mask
+        bits = self.bits()
+        return ((integer << count) | (integer >> (bits - count))) & self.mask
     
     def _get_words_from(self, chunk):
         words = list()
