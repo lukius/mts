@@ -42,6 +42,13 @@ class MDHashFunction(HashFunction):
     def _pad_message(self, message):
         return MDPadder(message, self.endianness()).value()   
     
+    def _compute_value(self):
+        registers = map(self._to_bytes, self.registers)
+        return Concatenation(registers).value()    
+
+    def state(self):
+        return self.registers
+
     def hash(self, message):
         self._initialize_registers()
         message = self._pad_message(message)        
@@ -51,10 +58,6 @@ class MDHashFunction(HashFunction):
             self._update_registers_from(values)
             
         return self._compute_value()
-    
-    def _compute_value(self):
-        registers = map(self._to_bytes, self.registers)
-        return Concatenation(registers).value()    
     
     @classmethod
     def endianness(cls):
