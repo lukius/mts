@@ -20,7 +20,8 @@ class Set7Challenge5(MatasanoChallenge):
         return self.hash_function().hash(self.MESSAGE)
     
     def value(self):
-        preimage = SecondPreimageAttack(self.hash_function).value(self.MESSAGE)
+        preimage = SecondPreimageAttack(self.hash_function).value(self.MESSAGE,
+                                                                  self.K)
         if preimage == self.MESSAGE:
             # Won't happen, but fail if the preimage found is the same message.
             return None

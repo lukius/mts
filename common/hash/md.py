@@ -13,6 +13,10 @@ class MDHashFunction(HashFunction):
     def register_size(cls):
         return 32
     
+    @classmethod
+    def block_size(cls):
+        return 64
+    
     def __init__(self):
         HashFunction.__init__(self)
         self.mask = (1 << self.register_size()) - 1
@@ -60,8 +64,8 @@ class MDHashFunction(HashFunction):
         self._initialize_registers()
         message = self._pad_message(message)        
         
-        for i in range(0, len(message), 64):
-            values = self._process_chunk(message[i:i+64])
+        for i in range(0, len(message), self.block_size()):
+            values = self._process_chunk(message[i:i+self.block_size()])
             self._update_registers_from(values)
             
         return self._compute_value()
