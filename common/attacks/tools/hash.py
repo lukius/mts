@@ -7,6 +7,7 @@ class ResumableMDHash(object):
         resumable_hash = self
         
         class ResumableHash(self.hash_function_class):
+            
             def __init__(self, registers):
                 resumable_hash.hash_function_class.__init__(self)
                 self.custom_registers = registers

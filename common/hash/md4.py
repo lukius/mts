@@ -18,8 +18,9 @@ class MD4(MDHashFunction):
     def endianness(cls):
         return LittleEndian
     
-    def _initialize_registers(self):
-        self.registers = [self.A, self.B, self.C, self.D]
+    @classmethod
+    def initial_state(cls):
+        return [cls.A, cls.B, cls.C, cls.D]
     
     def F(self, x, y, z):
         return (x & y) | (self._not(x) & z)

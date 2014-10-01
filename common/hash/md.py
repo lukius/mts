@@ -7,19 +7,26 @@ class MDHashFunction(HashFunction):
     
     @classmethod
     def bits(cls):
+        return len(cls.initial_state()) * cls.register_size()
+    
+    @classmethod
+    def register_size(cls):
         return 32
     
     def __init__(self):
         HashFunction.__init__(self)
-        self.mask = (1 << self.bits()) - 1
+        self.mask = (1 << self.register_size()) - 1
         
+    def _initialize_registers(self):
+        self.registers = list(self.initial_state())
+
     def _to_bytes(self, integer):
-        byte_size = self.bits()/8
+        byte_size = self.register_size()/8
         return self.endianness().from_int(integer, size=byte_size).value()        
     
     def _rotate_left(self, integer, count):
-        bits = self.bits()
-        return ((integer << count) | (integer >> (bits - count))) & self.mask
+        size = self.register_size()
+        return ((integer << count) | (integer >> (size - count))) & self.mask
     
     def _get_words_from(self, chunk):
         words = list()
@@ -61,10 +68,11 @@ class MDHashFunction(HashFunction):
     
     @classmethod
     def endianness(cls):
-        raise NotImplementedError    
-
-    def _initialize_registers(self):
         raise NotImplementedError
     
+    @classmethod
+    def initial_state(cls):
+        raise NotImplementedError
+
     def _process_chunk(self, chunk):
         raise NotImplementedError

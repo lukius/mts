@@ -11,7 +11,6 @@ class SHA1(MDHashFunction):
     H3 = 0x10325476
     H4 = 0xc3d2e1f0
     
-    
     @classmethod
     def get_OID(cls):
         return '\x06\x05\x2b\x0e\x03\x02\x1a'
@@ -20,9 +19,10 @@ class SHA1(MDHashFunction):
     def endianness(cls):
         return BigEndian    
     
-    def _initialize_registers(self):
-        self.registers = [self.H0, self.H1, self.H2, self.H3, self.H4]
-    
+    @classmethod
+    def initial_state(cls):
+        return [cls.H0, cls.H1, cls.H2, cls.H3, cls.H4]
+
     def _extend_words(self, words):
         for i in range(16, 80):
             new_word = self._rotate_left(words[i-3] ^ words[i-8] ^\

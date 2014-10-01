@@ -12,27 +12,65 @@ from common.tools.misc import Concatenation, AllEqual
 from common.tools.padders import RightPadder
 
 
+class ComposedHashFunctionCollisionGenerator(object):
+    
+    def __init__(self, composed_hash):
+        self.composed_hash = composed_hash
+        self.weak_hash = composed_hash.functions[0]
+        self.stronger_hash = composed_hash.functions[1]
+        
+    def _filter_collisions(self, collisions):
+        hashes = defaultdict(lambda: list())
+        for collision in collisions:
+            collision_hash = self.composed_hash.hash(collision)
+            hashes[collision_hash].append(collision)
+        for collision_hash in hashes:
+            messages = hashes[collision_hash]
+            if len(messages) > 1:
+                return messages
+        return list()        
+    
+    def value(self):
+        collision_generator = MulticollisionGenerator(self.weak_hash)
+        state = list()
+        collisions = None
+        # Generate 2**(target_bitsize/2) collisions; keep duplicating
+        # if no collisions are found.
+        n = self.stronger_hash.bits()/2
+        while True:
+            # On each step, duplicate the number of collisions. This is 
+            # achieved by supplying previous collisions and state to the
+            # multicollision generator.
+            collisions, state = collision_generator.value(n, collisions, state)
+            composed_hash_collisions = self._filter_collisions(collisions)
+            if composed_hash_collisions:
+                break
+            n = 1
+        return composed_hash_collisions
+
+
 class ToyHashFunctionFactory(object):
     
     @classmethod
-    def build(cls, bits):
-        max_int = (1<<bits) - 1
+    def build(cls, bit_size):
+        max_int = (1<<bit_size) - 1
         initial_state = random.randint(0, max_int)
-        byte_size = bits/8
+        byte_size = bit_size/8
         
         class ToyHashFunction(MDHashFunction):
 
             @classmethod
-            def bits(cls):
-                return bits
+            def register_size(cls):
+                return bit_size
             
             @classmethod
             def endianness(cls):
-                return BigEndian    
-        
-            def _initialize_registers(self):
-                self.registers = [initial_state]
+                return BigEndian
             
+            @classmethod
+            def initial_state(cls):
+                return [initial_state]
+        
             def _build_key_from_register(self):
                 key = self.endianness().from_int(self.registers[0],
                                                  size=byte_size).value()
@@ -58,44 +96,12 @@ class ComposedHashFunction(HashFunction):
 
 class Set7Challenge4(MatasanoChallenge):
     
-    def __init__(self):
-        MatasanoChallenge.__init__(self)
-        self.WeakHashFunction = ToyHashFunctionFactory.build(16)
-        self.StrongerHashFunction = ToyHashFunctionFactory.build(32)
-        self.composed_hash = ComposedHashFunction(self.WeakHashFunction,
-                                                  self.StrongerHashFunction)
-        
-    def _filter_collisions(self, collisions):
-        hashes = defaultdict(lambda: list())
-        for collision in collisions:
-            collision_hash = self.composed_hash.hash(collision)
-            hashes[collision_hash].append(collision)
-        for collision_hash in hashes:
-            messages = hashes[collision_hash]
-            if len(messages) > 1:
-                return messages
-        return list()
-    
-    def _generate_collisions_from_weak_hash(self):
-        collision_generator = MulticollisionGenerator(self.WeakHashFunction)
-        state = list()
-        collisions = None
-        # Generate 2**(target_bitsize/2) collisions; keep duplicating
-        # if no collisions are found.
-        n = self.StrongerHashFunction.bits()/2
-        while True:
-            # On each step, duplicate the number of collisions. This is 
-            # achieved by supplying previous collisions and state to the
-            # multicollision generator.
-            collisions, state = collision_generator.value(n, collisions, state)
-            composed_hash_collisions = self._filter_collisions(collisions)
-            if composed_hash_collisions:
-                break
-            n += 1
-        return composed_hash_collisions
-    
     def validate(self):
-        collisions = self._generate_collisions_from_weak_hash()
-        hashes = map(lambda message: self.composed_hash.hash(message),
-                     collisions)
+        weak_hash = ToyHashFunctionFactory.build(16)
+        stronger_hash = ToyHashFunctionFactory.build(32)
+        composed_hash = ComposedHashFunction(weak_hash, stronger_hash)
+        
+        collisions = ComposedHashFunctionCollisionGenerator(composed_hash).value()
+        hashes = map(lambda message: composed_hash.hash(message), collisions)
+        
         return AllEqual(hashes).value()
