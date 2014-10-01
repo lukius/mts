@@ -4,7 +4,7 @@ from common.tools.misc import RandomByteGenerator
 
 class MulticollisionGenerator(object):
     
-    CHUNK_SIZE = 64
+    BLOCK_SIZE = 64
     
     def __init__(self, hash_function):
         self.hash_function = hash_function
@@ -18,7 +18,7 @@ class MulticollisionGenerator(object):
         
     def _get_rand_message_and_state(self, hash_function, args):
         hash_function = self._init_hash_function(hash_function, args)
-        message = self.byte_generator.value(self.CHUNK_SIZE)
+        message = self.byte_generator.value(self.BLOCK_SIZE)
         # Compute the compress function and then update the internal state.
         new_state = hash_function._process_chunk(message)
         hash_function._update_registers_from(new_state)

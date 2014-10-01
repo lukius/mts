@@ -1,15 +1,10 @@
-import random
-
 from collections import defaultdict
 
 from common.attacks.multicollisions import MulticollisionGenerator
 from common.challenge import MatasanoChallenge
-from common.ciphers.block.aes import AES
-from common.hash import HashFunction
-from common.hash.md import MDHashFunction
-from common.tools.endianness import BigEndian
-from common.tools.misc import Concatenation, AllEqual
-from common.tools.padders import RightPadder
+from common.hash.tools.build import BasicHashFunctionFactory,\
+                                    ComposedHashFunction
+from common.tools.misc import AllEqual
 
 
 class ComposedHashFunctionCollisionGenerator(object):
@@ -49,56 +44,11 @@ class ComposedHashFunctionCollisionGenerator(object):
         return composed_hash_collisions
 
 
-class ToyHashFunctionFactory(object):
-    
-    @classmethod
-    def build(cls, bit_size):
-        max_int = (1<<bit_size) - 1
-        initial_state = random.randint(0, max_int)
-        byte_size = bit_size/8
-        
-        class ToyHashFunction(MDHashFunction):
-
-            @classmethod
-            def register_size(cls):
-                return bit_size
-            
-            @classmethod
-            def endianness(cls):
-                return BigEndian
-            
-            @classmethod
-            def initial_state(cls):
-                return [initial_state]
-        
-            def _build_key_from_register(self):
-                key = self.endianness().from_int(self.registers[0],
-                                                 size=byte_size).value()
-                return RightPadder(key).value(size=16, char='\x01')
-            
-            def _process_chunk(self, chunk):
-                key = self._build_key_from_register()
-                result = AES(key).encrypt(chunk).bytes()
-                return [self.endianness().to_int(result[:byte_size]).value()]
-            
-        return ToyHashFunction
-
-
-class ComposedHashFunction(HashFunction):
-    
-    def __init__(self, *functions):
-        self.functions = functions
-        
-    def hash(self, message):
-        hashes = map(lambda function: function().hash(message), self.functions)
-        return Concatenation(hashes).value()
-
-
 class Set7Challenge4(MatasanoChallenge):
     
     def validate(self):
-        weak_hash = ToyHashFunctionFactory.build(16)
-        stronger_hash = ToyHashFunctionFactory.build(32)
+        weak_hash = BasicHashFunctionFactory.build(16)
+        stronger_hash = BasicHashFunctionFactory.build(32)
         composed_hash = ComposedHashFunction(weak_hash, stronger_hash)
         
         collisions = ComposedHashFunctionCollisionGenerator(composed_hash).value()
