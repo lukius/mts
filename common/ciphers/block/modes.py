@@ -1,5 +1,4 @@
-from string import BlockString
-
+from common.tools.blockstring import BlockString
 from common.tools.padders import PKCS7Padder, PKCS7Unpadder
 from common.tools.xor import ByteXOR
 

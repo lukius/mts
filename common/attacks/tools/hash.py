@@ -1,3 +1,7 @@
+from common.tools.blockstring import BlockString
+from common.tools.misc import RandomByteGenerator
+
+
 class ResumableMDHash(object):
     
     def __init__(self, hash_function_class):
@@ -20,3 +24,28 @@ class ResumableMDHash(object):
                 return message
             
         return ResumableHash
+    
+
+class CollisionGeneratorBase(object):
+
+    def __init__(self, hash_function):
+        self.resumable_hash = ResumableMDHash(hash_function).value()
+        self.block_size = self.resumable_hash.block_size()
+        self.byte_generator = RandomByteGenerator()
+
+    def _init_hash_function(self, initial_state):
+        instance = self.resumable_hash(initial_state)
+        instance._initialize_registers()
+        return instance
+    
+    def _iterate_compress_function(self, message, initial_state,
+                                   block_callback=None):
+        if not isinstance(message, BlockString):
+            message = BlockString(message, self.block_size)
+        hash_function = self._init_hash_function(initial_state)
+        for index, block in enumerate(message):
+            new_state = hash_function._process_chunk(block)
+            hash_function._update_registers_from(new_state)
+            if block_callback is not None:
+                block_callback(index, block, hash_function)
+        return hash_function.state()    

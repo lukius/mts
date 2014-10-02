@@ -2,11 +2,12 @@ from math import ceil
 
 
 class BlockString(object):
-    """An abstraction of input/output of block ciphers.
+    """A string built from fixed-size blocks. Typically used to model
+      input/output of block ciphers.
     """
     
     def __init__(self, string=None, block_size=None):
-        from modes import BlockCipherMode
+        from common.ciphers.block.modes import BlockCipherMode
         self.string = string if string is not None else str()
         self._block_size = block_size if block_size is not None\
                            else BlockCipherMode.DEFAULT_BLOCK_SIZE
@@ -35,13 +36,16 @@ class BlockString(object):
         return int(ceil(len(self.string)/float(self._block_size)))
     
     def get_block(self, index):
-        from tools import BlockRetriever
         index = self._validate_and_adjust(index)
         return BlockRetriever(self.string, self._block_size).value(index)
     
     def remove_block(self, index):
         start_index, end_index = self._get_boundaries_for(index)
         self.string = self.string[:start_index] + self.string[end_index:]
+        
+    def remove_blocks_until(self, index):
+        start_index, _ = self._get_boundaries_for(index)
+        self.string = self.string[start_index:]
         
     def replace_block(self, index, new_block):
         start_index, end_index = self._get_boundaries_for(index)
@@ -74,3 +78,17 @@ class BlockString(object):
         block = self.get_block(self.current_block_index)
         self.current_block_index += 1
         return block
+    
+    
+class BlockRetriever(object):
+    
+    def __init__(self, message, block_size=None):
+        from common.ciphers.block.modes import ECB
+        self.message = message
+        self.block_size = block_size if block_size is not None \
+                          else ECB.DEFAULT_BLOCK_SIZE
+        
+    def value(self, index):
+        start_index = index*self.block_size
+        end_index = start_index+self.block_size
+        return self.message[start_index:end_index]    

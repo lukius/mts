@@ -27,7 +27,7 @@ class ComposedHashFunctionCollisionGenerator(object):
     
     def value(self):
         collision_generator = MulticollisionGenerator(self.weak_hash)
-        state = list()
+        state = None
         collisions = None
         # Generate 2**(target_bitsize/2) collisions; keep duplicating
         # if no collisions are found.

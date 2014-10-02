@@ -165,16 +165,3 @@ class ECBDecrypter(object):
         self.block_size = self._discover_block_size()
         self._ensure_ecb_mode()
         return self._decrypt_string()
-    
-    
-class BlockRetriever(object):
-    
-    def __init__(self, message, block_size=None):
-        self.message = message
-        self.block_size = block_size if block_size is not None \
-                          else ECB.DEFAULT_BLOCK_SIZE
-        
-    def value(self, index):
-        start_index = index*self.block_size
-        end_index = start_index+self.block_size
-        return self.message[start_index:end_index]

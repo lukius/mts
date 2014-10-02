@@ -5,7 +5,7 @@ from common.hash.tools.build import BasicHashFunctionFactory
 
 class Set7Challenge5(MatasanoChallenge):
     
-    K = 3
+    K = 5
     BLOCK = 'LTA!'*16
     MESSAGE = BLOCK*(K + 1 + 2**K)
     

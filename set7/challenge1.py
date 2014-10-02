@@ -1,5 +1,5 @@
 from common.challenge import MatasanoChallenge
-from common.ciphers.block.string import BlockString
+from common.tools.blockstring import BlockString
 from common.mac.cbc import CBC_MAC
 from common.tools.misc import RandomByteGenerator
 from common.tools.padders import PKCS7Padder

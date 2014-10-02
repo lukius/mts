@@ -1,35 +1,20 @@
-from common.attacks.tools.hash import ResumableMDHash
-from common.tools.misc import RandomByteGenerator
+from common.attacks.tools.hash import CollisionGeneratorBase
 
 
-class MulticollisionGenerator(object):
+class MulticollisionGenerator(CollisionGeneratorBase):
     
-    BLOCK_SIZE = 64
+    # Based on Joux's "Multicollisions in iterated hash functions. Application
+    # to cascaded constructions. "
     
-    def __init__(self, hash_function):
-        self.hash_function = hash_function
-        self.resumable_hash = ResumableMDHash(hash_function).value()
-        self.byte_generator = RandomByteGenerator()
+    def _get_rand_message_and_state(self, state):
+        message = self.byte_generator.value(self.block_size)
+        final_state = self._iterate_compress_function(message, state)
+        return message, final_state
         
-    def _init_hash_function(self, hash_function, args):
-        instance = hash_function(*args)
-        instance._initialize_registers()
-        return instance
-        
-    def _get_rand_message_and_state(self, hash_function, args):
-        hash_function = self._init_hash_function(hash_function, args)
-        message = self.byte_generator.value(self.BLOCK_SIZE)
-        # Compute the compress function and then update the internal state.
-        new_state = hash_function._process_chunk(message)
-        hash_function._update_registers_from(new_state)
-        return message, hash_function.state()
-        
-    def _find_collisions_for(self, hash_function, *args):
-        message1, state1 = self._get_rand_message_and_state(hash_function,
-                                                            args)
+    def _find_collisions_for(self, state):
+        message1, state1 = self._get_rand_message_and_state(state)
         while True:
-            message2, state2 = self._get_rand_message_and_state(hash_function,
-                                                                args)
+            message2, state2 = self._get_rand_message_and_state(state)
             if state1 == state2:
                 break
         return state1, [message1, message2]
@@ -37,13 +22,12 @@ class MulticollisionGenerator(object):
     def value(self, n, collisions=None, state=None):
         # This is to resume from a given list of collisions.
         collisions = collisions if collisions is not None else [str()]
-        state = state if state is not None else list()
-        for i in range(n):
+        state = state if state is not None\
+                else self.resumable_hash.initial_state()
+        for _ in range(n):
             # Find a new collision for current state registers, and then
             # combine the results.
-            args = (self.hash_function,) if i == 0 and len(state) == 0\
-                   else (self.resumable_hash, state)
-            state, new_collisions = self._find_collisions_for(*args)
+            state, new_collisions = self._find_collisions_for(state)
             collisions = [c1 + c2 for c1 in collisions
                                   for c2 in new_collisions]
         return collisions, state
