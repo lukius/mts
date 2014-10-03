@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from common.attacks.tools.hash import CollisionGeneratorBase
 
 
@@ -11,13 +13,14 @@ class MulticollisionGenerator(CollisionGeneratorBase):
         final_state = self._iterate_compress_function(message, state)
         return message, final_state
         
-    def _find_collisions_for(self, state):
-        message1, state1 = self._get_rand_message_and_state(state)
+    def _find_collisions_for(self, initial_state):
+        collisions = defaultdict(lambda: list())
         while True:
-            message2, state2 = self._get_rand_message_and_state(state)
-            if state1 == state2:
+            message, state = self._get_rand_message_and_state(initial_state)
+            collisions[state].append(message)
+            if len(collisions[state]) > 1:
                 break
-        return state1, [message1, message2]
+        return state, collisions[state]
     
     def value(self, n, collisions=None, state=None):
         # This is to resume from a given list of collisions.

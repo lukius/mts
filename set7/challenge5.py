@@ -1,4 +1,4 @@
-from common.attacks.preimage import SecondPreimageAttack
+from common.attacks.hash.preimage import SecondPreimageAttack
 from common.challenge import MatasanoChallenge
 from common.hash.tools.build import BasicHashFunctionFactory
 
@@ -14,7 +14,7 @@ class Set7Challenge5(MatasanoChallenge):
         # Use a rather artificial hash function in order to make the
         # challenge run faster. In theory, any MD hash function could
         # be targeted.
-        self.hash_function = BasicHashFunctionFactory.build(16)
+        self.hash_function = BasicHashFunctionFactory.build(24)
     
     def expected_value(self):
         return self.hash_function().hash(self.MESSAGE)

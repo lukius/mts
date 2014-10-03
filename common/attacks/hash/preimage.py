@@ -27,7 +27,6 @@ class SecondPreimageAttack(CollisionGeneratorBase):
             link = self.byte_generator.value(self.block_size)
             link_final_state = self._iterate_compress_function(link,
                                                                exp_msg_state)
-            link_final_state = tuple(link_final_state)
             if link_final_state in state_map and\
                state_map[link_final_state] > k:
                 break      
@@ -65,6 +64,7 @@ class ExpandableMessageGenerator(CollisionGeneratorBase):
         return 'X'*self.block_size*length
     
     def _find_colliding_block(self, prefix, initial_state):
+        collisions = dict()
         prefix_state = self._iterate_compress_function(prefix, initial_state)
         while True:
             last_block = self.byte_generator.value(self.block_size)
@@ -72,9 +72,10 @@ class ExpandableMessageGenerator(CollisionGeneratorBase):
             state1 = self._iterate_compress_function(last_block, prefix_state)
             state2 = self._iterate_compress_function(single_block,
                                                      initial_state)
-            if state1 == state2:
+            collisions[state2] = single_block
+            if state1 in collisions:
                 break
-        return state1, (single_block, last_block)
+        return state1, (collisions[state1], last_block)
     
     def _find_colliding_messages_for(self, length, initial_state):
         prefix = self._get_dummy_blocks(length)

@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from common.attacks.multicollisions import MulticollisionGenerator
+from common.attacks.hash.multicollisions import MulticollisionGenerator
 from common.challenge import MatasanoChallenge
 from common.hash.tools.build import BasicHashFunctionFactory,\
                                     ComposedHashFunction
@@ -18,11 +18,10 @@ class ComposedHashFunctionCollisionGenerator(object):
         hashes = defaultdict(lambda: list())
         for collision in collisions:
             collision_hash = self.composed_hash.hash(collision)
-            hashes[collision_hash].append(collision)
-        for collision_hash in hashes:
-            messages = hashes[collision_hash]
-            if len(messages) > 1:
-                return messages
+            collisions_for_hash = hashes[collision_hash]
+            collisions_for_hash.append(collision)
+            if len(collisions_for_hash) > 1:
+                return collisions_for_hash
         return list()        
     
     def value(self):

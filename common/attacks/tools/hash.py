@@ -48,4 +48,4 @@ class CollisionGeneratorBase(object):
             hash_function._update_registers_from(new_state)
             if block_callback is not None:
                 block_callback(index, block, hash_function)
-        return hash_function.state()    
+        return tuple(hash_function.state())    
