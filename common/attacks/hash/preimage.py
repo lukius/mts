@@ -7,10 +7,6 @@ class SecondPreimageAttack(CollisionGeneratorBase):
     # Based on Kelsey's & Schneier's "Second Preimages on n-bit Hash
     # Functions for Much Less than 2**n Work" 
     
-    def __init__(self, md_hash_function):
-        CollisionGeneratorBase.__init__(self, md_hash_function)
-        self.msg_generator = ExpandableMessageGenerator(md_hash_function)
-        
     def _build_state_map_for(self, block_string):
         def block_i_state(i, block, hash_function):
             current_state = hash_function.state()
@@ -32,33 +28,29 @@ class SecondPreimageAttack(CollisionGeneratorBase):
                 break      
         return state_map[link_final_state], link
     
-    def _build_prefix(self, expandable_message, j, k):
-        prefix = str()
-        for i, messages in enumerate(expandable_message):
-            length = 2**(k-i-1)
-            if j - length > 0:
-                prefix += messages[1]
-                j -= length
-            else:
-                prefix += messages[0]
-                j -= 1
-        return prefix
-        
     def value(self, message, k):
         block_string = BlockString(message, self.resumable_hash.block_size())
         # Compute the expandable message for this k.
-        exp_message_state, exp_message = self.msg_generator.value(k)
+        msg_generator = ExpandableMessageGenerator(self.hash_function, k)
+        exp_message_state = msg_generator.state()
         # Build a mapping from intermediate states to block indices.
         state_map = self._build_state_map_for(block_string)
+        # Find a linking block from the expandable message to the original
+        # message.
         j, link = self._find_link(state_map, exp_message_state, k)
         # Now, generate a prefix having j blocks from the expandable message.
-        prefix = self._build_prefix(exp_message, j, k)
+        prefix = msg_generator.value(j)
         # ...and remove first j+1 blocks from the original message.
         block_string.remove_blocks_until(j+1)
         return prefix + link + block_string.bytes()
 
     
 class ExpandableMessageGenerator(CollisionGeneratorBase):
+    
+    def __init__(self, hash_function, k):
+        CollisionGeneratorBase.__init__(self, hash_function)
+        self.k = k
+        self._build_expandable_message()
     
     def _get_dummy_blocks(self, length):
         return 'X'*self.block_size*length
@@ -82,11 +74,26 @@ class ExpandableMessageGenerator(CollisionGeneratorBase):
         final_state, blocks = self._find_colliding_block(prefix, initial_state)
         return final_state, (blocks[0], prefix + blocks[1])
         
-    def value(self, k):
-        expandable_message = list()
+    def _build_expandable_message(self):
+        self.expandable_message = list()
         state = self.resumable_hash.initial_state()
-        for i in range(k):
-            state, messages = self._find_colliding_messages_for(2**(k-i-1),
+        for i in range(self.k):
+            state, messages = self._find_colliding_messages_for(2**(self.k-i-1),
                                                                 state)
-            expandable_message.append(messages)
-        return state, expandable_message
+            self.expandable_message.append(messages)
+        self.end_state = state
+        
+    def state(self):
+        return self.end_state
+            
+    def value(self, length):
+        prefix = str()
+        for i, messages in enumerate(self.expandable_message):
+            current_length = 2**(self.k-i-1)
+            if length - current_length > 0:
+                prefix += messages[1]
+                length -= current_length
+            else:
+                prefix += messages[0]
+                length -= 1
+        return prefix

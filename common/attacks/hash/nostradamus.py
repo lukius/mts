@@ -1,6 +1,7 @@
 import random
 
 from common.attacks.tools.hash import CollisionGeneratorBase
+from common.tools.padders import MDPadder
 
 
 class NostradamusAttack(CollisionGeneratorBase):
@@ -10,10 +11,11 @@ class NostradamusAttack(CollisionGeneratorBase):
     
     DEFAULT_K = 10
     
-    def __init__(self, md_hash_function, k=None):
+    def __init__(self, md_hash_function, prediction_length, k=None):
         CollisionGeneratorBase.__init__(self, md_hash_function)
         self.k = k if k is not None else self.DEFAULT_K
-        self._compute_prediction()
+        self.prediction_length = prediction_length
+        self._compute_prediction_hash()
     
     def _get_rand_states(self, count):
         state_size = len(self.resumable_hash.initial_state())
@@ -45,27 +47,68 @@ class NostradamusAttack(CollisionGeneratorBase):
             new_states.append(new_state)
         return new_states
     
-    def _compute_prediction(self):
+    def _build_diamond(self):
         # Build the diamond structure dynamically during collision generation.
         self.diamond = Diamond(self.k)
         states = self._get_rand_states(2**self.k)
         for i in range(self.k):
             states = self._update_diamond(states, i)
-        self.final_state = states[0]
+        # states will only have one state, which is the final state of the
+        # structure.
+        return states[0]
+    
+    def _compress_padding_block_from(self, state):
+        dummy_message = 'X'*self.prediction_length
+        padded_message = MDPadder(dummy_message,
+                                  self.hash_function.endianness()).value()
+        padding_block = padded_message[-self.block_size:]
+        return self._iterate_compress_function(padding_block, state)
+
+    def _compute_prediction_hash(self):
+        final_diamond_state = self._build_diamond()
+        # The actual hash has to take into account the length of the prediction
+        # message.
+        end_state = self._compress_padding_block_from(final_diamond_state)
+        hash_function = self._init_hash_function(end_state)
+        self.prediction_hash = hash_function._compute_value()
+    
+    def _find_link_to_diamond(self, message):
+        initial_state = self._iterate_compress_function(message)
+        while True:
+            link = self.byte_generator.value(self.block_size)
+            link_final_state = self._iterate_compress_function(link,
+                                                               initial_state)
+            if link_final_state in self.diamond:
+                break      
+        return link_final_state, link    
     
     def prediction(self):
-        return self.final_state
+        return self.prediction_hash
     
     def for_prefix(self, prefix):
-        # TBC
-        return str()
-    
+        prefix_length = len(prefix)
+        # Add dummy glue blocks in order to complete the desired prediction
+        # length. The amount of glue blocks is found by subtracting from 
+        # the prediction block length the prefix block length, the linking
+        # block into the diamond and the diamond traversal blocks.
+        glue_length = self.prediction_length - prefix_length -\
+                      self.block_size*(self.k+1)
+        if glue_length < 0:
+            raise RuntimeError('invalid prefix length')
+        message = prefix + 'X'*glue_length
+        state, link = self._find_link_to_diamond(message)
+        diamond_path = self.diamond.traverse_from(state)
+        return message + link + diamond_path
+
     
 class Diamond(object):
     
     def __init__(self, size):
         self.size = size
         self.structure = [dict() for _ in range(size)]
+        
+    def __contains__(self, state):
+        return state in self.structure[0]
         
     def make_transition(self, level, source_state, block, dest_state):
         if level < 0 or level >= self.size:

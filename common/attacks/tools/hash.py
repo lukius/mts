@@ -29,6 +29,7 @@ class ResumableMDHash(object):
 class CollisionGeneratorBase(object):
 
     def __init__(self, hash_function):
+        self.hash_function = hash_function
         self.resumable_hash = ResumableMDHash(hash_function).value()
         self.block_size = self.resumable_hash.block_size()
         self.byte_generator = RandomByteGenerator()
@@ -38,10 +39,12 @@ class CollisionGeneratorBase(object):
         instance._initialize_registers()
         return instance
     
-    def _iterate_compress_function(self, message, initial_state,
+    def _iterate_compress_function(self, message, initial_state=None,
                                    block_callback=None):
         if not isinstance(message, BlockString):
             message = BlockString(message, self.block_size)
+        if initial_state is None:
+            initial_state = self.hash_function.initial_state()
         hash_function = self._init_hash_function(initial_state)
         for index, block in enumerate(message):
             new_state = hash_function._process_chunk(block)

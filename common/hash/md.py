@@ -55,7 +55,7 @@ class MDHashFunction(HashFunction):
     
     def _compute_value(self):
         registers = map(self._to_bytes, self.registers)
-        return Concatenation(registers).value()    
+        return Concatenation(registers).value()   
 
     def state(self):
         return self.registers
