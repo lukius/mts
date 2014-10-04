@@ -21,7 +21,7 @@ class SingleByteXORFinder(object):
         return candidate_plaintext
     
 
-class Set1Challenge4(MatasanoChallenge):
+class Set1Challenge04(MatasanoChallenge):
     
     FILE = 'set1/data/4.txt'
     

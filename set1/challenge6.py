@@ -3,7 +3,7 @@ from common.challenge import MatasanoChallenge
 from common.attacks.xor import RepeatingKeyXORDecrypter
         
 
-class Set1Challenge6(MatasanoChallenge):
+class Set1Challenge06(MatasanoChallenge):
     
     FILE = 'set1/data/6.txt'
     

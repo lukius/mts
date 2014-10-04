@@ -91,8 +91,10 @@ class Runner(object):
                 self._show_message(message % requirement)
     
     def _import_challenge(self, set_num, challenge_num):
+        real_challenge_num = (int(set_num)-1)*self.MAX_CHALLENGES +\
+                             int(challenge_num)
         set_directory = self.SET_PLACEHOLDER % set_num
-        challenge_name = self.CHALLENGE_PLACEHOLDER % challenge_num
+        challenge_name = self.CHALLENGE_PLACEHOLDER % str(real_challenge_num)
         challenge_path = '%s.%s' % (set_directory, challenge_name)
         try:
             __import__(challenge_path)

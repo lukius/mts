@@ -2,7 +2,7 @@ from common.challenge import MatasanoChallenge
 from common.tools.xor import HexXOR
 
 
-class Set1Challenge2(MatasanoChallenge):
+class Set1Challenge02(MatasanoChallenge):
     
     def expected_value(self):
         return '746865206b696420646f6e277420706c6179'

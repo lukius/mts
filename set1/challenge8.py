@@ -27,7 +27,7 @@ class ECBEncryptionFinder(object):
         return candidate_string
     
 
-class Set1Challenge8(MatasanoChallenge):
+class Set1Challenge08(MatasanoChallenge):
     
     FILE = 'set1/data/8.txt'
     

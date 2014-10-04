@@ -2,7 +2,7 @@ from common.tools.base64 import Base64Encoder
 from common.challenge import MatasanoChallenge
 
 
-class Set1Challenge1(MatasanoChallenge):
+class Set1Challenge01(MatasanoChallenge):
     
     def expected_value(self):
         return 'SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9p'+\

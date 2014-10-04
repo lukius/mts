@@ -3,7 +3,7 @@ from common.tools.converters import BytesToHex
 from common.ciphers.xor import XORCipher
 
 
-class Set1Challenge5(MatasanoChallenge):
+class Set1Challenge05(MatasanoChallenge):
     
     KEY = 'ICE'
     STRING = "Burning 'em, if you ain't quick and nimble\n"+\

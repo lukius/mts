@@ -4,7 +4,7 @@ from common.ciphers.block.aes import AES
 from common.ciphers.block.modes import ECB
 
     
-class Set1Challenge7(MatasanoChallenge):
+class Set1Challenge07(MatasanoChallenge):
     
     ANSWER_FILE = 'set1/data/6ans.txt'
     FILE = 'set1/data/7.txt'
