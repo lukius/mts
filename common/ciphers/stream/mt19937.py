@@ -1,20 +1,12 @@
-from common.ciphers import Cipher
+from common.ciphers.stream import StreamCipher
 from common.random.mt19937 import MersenneTwister
-from common.tools.xor import ByteXOR
 
 
-class MersenneTwisterCipher(Cipher):
+class MersenneTwisterCipher(StreamCipher):
     
     def __init__(self, key):
+        StreamCipher.__init__(self)
         self.prng = MersenneTwister(seed=key)
         
-    def _xor_with_key(self, string):
-        byte_count = len(string)
-        xor_key = self.prng.rand_bytes(byte_count)
-        return ByteXOR(string, xor_key).value()
-    
-    def encrypt(self, plaintext):
-        return self._xor_with_key(plaintext)
-    
-    def decrypt(self, ciphertext):
-        return self._xor_with_key(ciphertext)
+    def _compute_key_bytes(self, byte_count):
+        return self.prng.rand_bytes(byte_count)    
