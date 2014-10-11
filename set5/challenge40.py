@@ -1,7 +1,7 @@
 from common.challenge import MatasanoChallenge
 from common.ciphers.pubkey.rsa import FixedERSA
 from common.math.invmod import ModularInverse
-from common.tools.converters import IntToBytes, BytesToInt
+from common.tools.converters import IntToBytes
 from common.tools.misc import Product
 from common.math.root import NthRoot
 
@@ -35,8 +35,6 @@ class RSABroadcastAttack(object):
         return result % moduli_product
     
     def decrypt(self, ciphertexts):
-        ciphertexts = map(lambda ciphertext: BytesToInt(ciphertext).value(),
-                          ciphertexts)
         products = self._compute_moduli_products()
         inverses = self._compute_modular_inverses_for(products)
         crt_result = self._compute_CRT_result_from(ciphertexts, products,
@@ -55,7 +53,7 @@ class Set5Challenge40(MatasanoChallenge):
     
     def value(self):
         rsa_instances = [FixedERSA(e=self.E) for _ in range(self.E)]
-        ciphertexts = map(lambda rsa: rsa.encrypt(self.PLAINTEXT),
+        ciphertexts = map(lambda rsa: rsa.int_encrypt(self.PLAINTEXT),
                           rsa_instances)
         public_keys = map(lambda rsa: rsa.get_public_key(), rsa_instances)
         attack = RSABroadcastAttack(public_keys)
