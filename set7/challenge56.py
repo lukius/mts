@@ -12,7 +12,7 @@ class RC4SingleByteBiasAttack(object):
     
     BIASED_BYTE_1 = (15, 240)
     BIASED_BYTE_2 = (31, 224)
-    EXPERIMENTS = 2**16
+    EXPERIMENTS = 2**23
     
     def __init__(self, oracle):
         self.oracle = oracle
