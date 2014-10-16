@@ -1,4 +1,7 @@
+import random
+
 from common.hash.md4 import MD4
+from common.tools.misc import Concatenation
 
 
 class MD4CollisionGenerator(object):
@@ -24,8 +27,8 @@ class MD4CollisionGenerator(object):
         sum1 = self._capped_diff(self._rotate_right(x, s), a)
         return self._capped_diff(sum1, func(b, c, d))
     
-    def _perform_multi_step_modifications(self, words):
-        pass
+    def _round_operation(self, *args, **kwargs):
+        return self.md4._round_operation(*args, **kwargs)
     
     def _perform_message_modifications(self, words):
         a, b, c, d = self.md4.initial_state()
@@ -69,6 +72,10 @@ class MD4CollisionGenerator(object):
         a_2 = a_2 ^\
               (self._get_bit(a_2, 7) ^ (1 << 7)) ^\
               (self._get_bit(a_2, 10) ^ (1 << 10)) ^\
+              (self._get_bit(a_2, 16) ^ self._get_bit(b_1, 16)) ^\
+              (self._get_bit(a_2, 17) ^ self._get_bit(b_1, 17)) ^\
+              (self._get_bit(a_2, 19) ^ self._get_bit(b_1, 19)) ^\
+              (self._get_bit(a_2, 22) ^ self._get_bit(b_1, 22)) ^\
                self._get_bit(a_2, 25) ^\
               (self._get_bit(a_2, 13) ^ self._get_bit(b_1, 13))
         words[4] = self._reverse_round_operation(a_1, b_1, c_1, d_1, a_2, 3, F)
@@ -76,12 +83,16 @@ class MD4CollisionGenerator(object):
         # d 2,14 = 0, d 2,19 = a 2,19 , d 2,20 = a 2,20 ,
         # d 2,21 = a 2,21 , d 2,22 = a 2,22 , d 2,26 = 1
         d_2 = self._round_operation(d_1, a_2, b_1, c_1, words[5], 7, F)
+        # Extra condition on d 2,19 might fail
         d_2 = d_2 ^\
                self._get_bit(d_2, 13) ^\
+               self._get_bit(d_2, 16) ^\
+               self._get_bit(d_2, 17) ^\
               (self._get_bit(d_2, 18) ^ self._get_bit(a_2, 18)) ^\
               (self._get_bit(d_2, 19) ^ self._get_bit(a_2, 19)) ^\
               (self._get_bit(d_2, 20) ^ self._get_bit(a_2, 20)) ^\
               (self._get_bit(d_2, 21) ^ self._get_bit(a_2, 21)) ^\
+               self._get_bit(d_2, 22) ^\
               (self._get_bit(d_2, 25) ^ (1 << 25))
         words[5] = self._reverse_round_operation(d_1, a_2, b_1, c_1, d_2, 7, F)
         
@@ -92,10 +103,13 @@ class MD4CollisionGenerator(object):
               (self._get_bit(c_2, 12) ^ self._get_bit(d_2, 12)) ^\
                self._get_bit(c_2, 13) ^\
               (self._get_bit(c_2, 14) ^ self._get_bit(d_2, 14)) ^\
+               self._get_bit(c_2, 16) ^\
+               self._get_bit(c_2, 17) ^\
                self._get_bit(c_2, 18) ^\
                self._get_bit(c_2, 19) ^\
               (self._get_bit(c_2, 20) ^ (1 << 20)) ^\
-               self._get_bit(c_2, 21)
+               self._get_bit(c_2, 21) ^\
+               self._get_bit(c_2, 22)
         words[6] = self._reverse_round_operation(c_1, d_2, a_2, b_1, c_2, 11, F)
         
         # b 2,13 = 1, b 2,14 = 1, b 2,15 = 0, b 2,17 = c 2,17 ,
@@ -106,10 +120,12 @@ class MD4CollisionGenerator(object):
               (self._get_bit(b_2, 13) ^ (1 << 13)) ^\
                self._get_bit(b_2, 14) ^\
               (self._get_bit(b_2, 16) ^ self._get_bit(c_2, 16)) ^\
+               self._get_bit(b_2, 17) ^\
                self._get_bit(b_2, 18) ^\
                self._get_bit(b_2, 19) ^\
                self._get_bit(b_2, 20) ^\
-               self._get_bit(b_2, 21)
+               self._get_bit(b_2, 21) ^\
+               self._get_bit(b_2, 22)
         words[7] = self._reverse_round_operation(b_1, c_2, d_2, a_2, b_2, 19, F)
         
         # a 3,13 = 1, a 3,14 = 1, a 3,15 = 1, a 3,17 = 0,
@@ -220,11 +236,68 @@ class MD4CollisionGenerator(object):
         words[15] = self._reverse_round_operation(b_3, c_4, d_4, a_4, b_4, 19, F)
         
         # Now, perform multi-step modifications.
-        # Still don't know how, though. Paper is totally unintelligible.  
+        z = 0x5a827999
+        a_5 = self._round_operation(a_4, b_4, c_4, d_4, words[0], 3, self.md4.G, z)
+        for i in [18, 25, 26, 28, 31]:
+            if (i == 18 and self._get_bit(a_5, i) == self._get_bit(c_4, i)) or\
+               (i == 25 and self._get_bit(a_5, i) == (1 << i)) or\
+               (i == 26 and self._get_bit(a_5, i) == 0) or\
+               (i == 28 and self._get_bit(a_5, i) == (1 << i)) or\
+               (i == 31 and self._get_bit(a_5, i) == (1 << i)):
+                    continue
+            if self._get_bit(a_1, i) == 0:
+                a_11 = a_1 ^ (1 << i)
+                words[0] = (words[0] + 2**(i-3)) & self.md4.mask
+            else:
+                a_11 = a_1 ^ self._get_bit(a_1, i)
+                words[0] = (words[0] - 2**(i-3)) & self.md4.mask
+            words[1] = self._reverse_round_operation(d, a_11, b, c, d_1, 7, F)
+            words[2] = self._reverse_round_operation(c, d_1, a_11, b, c_1, 11, F)
+            words[3] = self._reverse_round_operation(b, c_1, d_1, a_11, b_1, 19, F)
+            words[4] = self._reverse_round_operation(a_11, b_1, c_1, d_1, a_2, 3, F)
+            
+        d_5 = self._round_operation(d_4, a_5, b_4, c_4, words[4], 5, self.md4.G, z)
+        c_5 = self._round_operation(c_4, d_5, a_5, b_4, words[8], 9, self.md4.G, z)
+        for i in [25, 26, 28, 31]:
+            if self._get_bit(c_5, i) == self._get_bit(d_5, i):
+                continue
+            words[5] = (words[5] + 2**(i-16)) & self.md4.mask
+            words[8] = (words[8] - 2**(i-9)) & self.md4.mask
+            words[9] = (words[9] - 2**(i-9)) & self.md4.mask
+            
+        return words
+
+    def _build_message_from(self, words):
+        words = map(lambda word: self.md4.endianness().from_int(word, 4).value(), words)
+        return Concatenation(words).value()
+    
+    def _build_delta_message_from(self, words):
+        words = list(words)
+        words[1] = (words[1] + 2**31) & self.md4.mask
+        words[2] = (words[2] + 2**31 - 2**28) & self.md4.mask
+        words[12] = (words[12] - 2**16) & self.md4.mask
+        return self._build_message_from(words)
         
     def _generate_collisions(self, words):
-        # TBC
-        return str(), str()
+        words1 = list(words)
+        while True:
+            message = self._build_message_from(words1)
+            delta_message = self._build_delta_message_from(words1)
+            if self.md4.hash(message) == self.md4.hash(delta_message):
+                break
+            words1 = self._modify_randomly(words)
+        return message, delta_message
+    
+    def _modify_randomly(self, words):
+        words = list(words)
+        words_to_modify = random.randint(0, 5)
+        word_indices = [random.choice(range(16)) for _ in range(words_to_modify)]
+        for index in word_indices:
+            bits_to_modify = random.randint(0, 5)
+            bit_indices = [random.choice(range(32)) for _ in range(bits_to_modify)]
+            for bit_index in bit_indices:
+                words[index] ^= (1 << bit_index)
+        return words
     
     def value(self, message):
         words = self.md4._get_words_from(message)
