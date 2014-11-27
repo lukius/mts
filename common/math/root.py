@@ -6,7 +6,7 @@ class NthRoot(object):
         self.n = n
 
     def value(self, x):
-        # Compute y s.t. y**self.n == [nth_root(x, self.n)]
+        # Compute y s.t. y == [nth_root(x, self.n)]
         # [.] denotes the floor function.
 
         if x == 0:
