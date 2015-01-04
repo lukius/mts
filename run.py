@@ -3,6 +3,7 @@ import sys
 from argparse import ArgumentParser
 
 from common.challenge import MatasanoChallenge
+from common.tools.misc import Concatenation
 
 
 class CommandLineParser(object):
@@ -117,8 +118,17 @@ class Runner(object):
             self._show_message('FAILED\n')
             self.challenges_failed += 1
                 
-    def _run_challenges(self):
+    def _get_challenge_classes(self):
         challenge_classes = MatasanoChallenge.__subclasses__()
+        challenge_classes = map(self._get_proper_classes, challenge_classes)
+        return Concatenation(challenge_classes).value()
+                
+    def _get_proper_classes(self, challenge_class):
+        subclasses = challenge_class.__subclasses__()
+        return subclasses if subclasses else [challenge_class]
+                
+    def _run_challenges(self):
+        challenge_classes = self._get_challenge_classes()
         map(lambda challenge_class: self._run_challenge(challenge_class()),
             challenge_classes)
     
