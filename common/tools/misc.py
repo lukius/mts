@@ -11,6 +11,8 @@ class Concatenation(object):
         self.objs = objs
         
     def value(self):
+        if not self.objs:
+            return list()
         initial_value = type(self.objs[0])()
         return reduce(lambda result, obj: result + obj,
                       self.objs, initial_value)

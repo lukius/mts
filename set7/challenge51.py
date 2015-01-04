@@ -51,7 +51,13 @@ class CBCCompressionOracle(HTTPCompressionOracle):
 
 class Set7Challenge51Base(MatasanoChallenge):
     
-    COOKIE_SIZE = 20
+    # This length corresponds to the length of the cookie used in the challenge.
+    # For greater lengths, the algorithm used here does not seem to work
+    # properly. However, it might be fixed by using symbols of greater size
+    # (e.g., combinations of three characters instead of two) and just keeping
+    # the first character of each candidate symbol on each iteration. The
+    # downside of this is that the running time increases exponentially.
+    COOKIE_SIZE = 32
     COOKIE = RandomByteGenerator().value(COOKIE_SIZE)
     
     def __init__(self):
@@ -69,14 +75,14 @@ class Set7Challenge51Base(MatasanoChallenge):
     
     
 class Set7Challenge51UsingCTR(Set7Challenge51Base):
-     
+
     def _get_attack(self):
         oracle = CTRCompressionOracle(self.cookie)
         return CTRCompressionRatioAttack(oracle)
 
 
 class Set7Challenge51UsingCBC(Set7Challenge51Base):
-    
+
     def _get_attack(self):
         oracle = CBCCompressionOracle(self.cookie)
         return CBCCompressionRatioAttack(oracle)
