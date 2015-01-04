@@ -1,8 +1,8 @@
+import random
 import string
 
 from common.ciphers.block.modes import BlockCipherMode
 from common.tools.misc import Concatenation
-import random
 
 
 class CompressionRatioAttack(object):
