@@ -1,8 +1,8 @@
 ##mts
- Solutions for some of the [Matasano crypto challenges](http://cryptopals.com/).
+ This repository contains my solutions for the [Matasano crypto challenges](http://cryptopals.com/).
 
 #### Requirements
- * Some challenges use the [PyCrypto](https://www.dlitz.net/software/pycrypto/) library.
+ * Some of them use the [PyCrypto](https://www.dlitz.net/software/pycrypto/) library.
 
 #### Usage
  * The `run.py` script runs every challenge passed as command-line argument.
