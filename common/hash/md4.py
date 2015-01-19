@@ -32,10 +32,7 @@ class MD4(MDHashFunction):
         return x ^ y ^ z
 
     def _round_operation(self, a, b, c, d, x, s, func, z=0):
-        sum1 = self._capped_sum(a, func(b, c, d))
-        sum2 = self._capped_sum(sum1, x)
-        sum3 = self._capped_sum(sum2, z)
-        return self._rotate_left(sum3, s)
+        return self._rotate_left((a + func(b, c, d) + x + z) & self.mask, s)
                
     def _round_1(self, words, a, b, c, d):
         a = self._round_operation(a, b, c, d, words[0], 3, self.F)
