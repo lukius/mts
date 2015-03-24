@@ -52,8 +52,8 @@ class PKCS1_5PaddingOracleAttack(RSAOracleAttack):
         # too soon.
         i = 1        
         lim = 1000
-        low_s = (2*self.B + r*self.n) / b
-        high_s = (3*self.B + r*self.n) / a
+        low_s = self._divide_and_round_up(2*self.B + r*self.n, b)
+        high_s = self._divide_and_round_up(3*self.B + r*self.n, a)
         new_s = low_s
         while new_s < high_s:
             if self._s_works(c, new_s):

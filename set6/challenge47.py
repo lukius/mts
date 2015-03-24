@@ -2,6 +2,7 @@ from common.attacks.pkcs1_5 import PKCS1_5PaddingOracleAttack,\
                                    PKCS1_5PaddingOracle
 from common.challenge import MatasanoChallenge
 from common.ciphers.pubkey.rsa import RSA
+from common.tools.misc import ByteSize
 from common.tools.padders import PKCS1_5Padder
 
 
@@ -28,6 +29,7 @@ class Set6Challenge47(MatasanoChallenge):
     def value(self):
         rsa = RSA(bits=self.RSA_BITS)
         oracle = PKCS1_5PaddingOracle(rsa)
-        padded_string = PKCS1_5Padder(self.STRING).value(size=self.RSA_BITS/8)
+        byte_size = ByteSize(rsa.n).value()
+        padded_string = PKCS1_5Padder(self.STRING).value(size=byte_size)
         ciphertext = rsa.encrypt(padded_string)
         return self._decrypt(ciphertext, oracle)

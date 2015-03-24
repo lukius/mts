@@ -17,8 +17,9 @@ class RSA(PublicKeyCipher):
         
     def _init_primes(self, bits):
         prime_generator = RandPrime()
-        p = prime_generator.value(n=bits/2)
-        q = prime_generator.value(n=bits/2)
+        bitsize = 1+bits/2 if bits%2 else bits/2
+        p = prime_generator.value(n=bitsize)
+        q = prime_generator.value(n=bitsize)
         return p, q
         
     def _init_parameters(self, bits):
@@ -50,9 +51,9 @@ class RSA(PublicKeyCipher):
     
 class FixedERSA(RSA):
     
-    def __init__(self, e):
+    def __init__(self, e, bits=None):
         self.e = e
-        RSA.__init__(self)
+        RSA.__init__(self, bits)
     
     def _choose_e_from(self, totient):
         return self.e
